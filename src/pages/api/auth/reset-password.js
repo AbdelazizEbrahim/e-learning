@@ -51,10 +51,11 @@ export default async (req, res) => {
       text: `Your OTP code is ${otp}`
     };
 
+    if(mailOptions){
     console.log('Sending email...');
     await transporter.sendMail(mailOptions);
     console.log('Email sent');
-
+    }
     // Save OTP to user document
     console.log('Saving OTP to user document...');
     resetUser.otp = otp;

@@ -37,7 +37,9 @@ export default function VerifyOtp() {
       });
 
       if (!res.ok) {
-        throw new Error('Verification failed');
+        console.log('Verification failed');
+        throw new Error(err);
+        return res.json({message: message.err});
       }
 
       console.log(res);

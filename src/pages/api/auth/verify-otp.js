@@ -20,8 +20,7 @@ export default async (request, response)=>{
             return response.status(400).json({ message: 'Invalid OTP' });
           }
     
-          // Hash the new password    userFound.otp = undefined; 
-          const hashedPassword = await bcrypt.hash(newPassword, 12); // Use a reasonable salt rounds (e.g., 12)
+          const hashedPassword = await bcrypt.hash(newPassword, 12); 
           userFound.password = hashedPassword;
               
           // Save the updated user document

@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -27,8 +26,10 @@ export default function ResetPassword() {
       });
 
       console.log(res);
+      console.log('Result');
 
       if (!res.ok) {
+        console.log('Reset password failed');
         throw new Error('Reset password failed');
       }
 
@@ -46,12 +47,6 @@ export default function ResetPassword() {
 
   return (
     <div className='relative w-screen h-screen'>
-      <Image
-        className='absolute top-0 left-0 object-cover w-full h-full'
-        src='/bg.jpg'
-        alt='background image'
-        fill
-      />
       <main className='relative flex items-center justify-center w-full h-full bg-black/50'>
         <div className='bg-[#16202a] text-white p-6 rounded-lg shadow-lg'>
           <div className='my-6'>
