@@ -126,11 +126,13 @@ const NavBar = () => {
 
                 {/* Dropdown Menu */}
                 {(dropdownOpen || dropdownHovered) && (
-                  <div className="absolute right-0 top-full mt-2 w-40 bg-white text-gray-900 rounded-lg shadow-lg z-50">
+                  <div className="absolute right-0 top-full mt-2 w-32 bg-white text-gray-900 rounded-lg shadow-lg z-50">
                     <Link href="/admin/dashboard" className="block px-3 py-2 hover:bg-gray-100">Dashboard</Link>
                     <Link href="/admin/myCourses" className="block px-3 py-2 hover:bg-gray-100">My Courses</Link>
                     <Link href="/admin/manageUsers" className="block px-3 py-2 hover:bg-gray-100">User Management</Link> {/* New Button */}
                     <Link href="/admin/accountSetting" className="block px-3 py-2 hover:bg-gray-100">Account Settings</Link>
+                    <Link href="/admin/partner" className="block px-3 py-2 hover:bg-gray-100">Partners</Link>
+                    <Link href="/admin/testimony" className="block px-3 py-2 hover:bg-gray-100">Testimonies</Link>
                     <button onClick={handleLogout} className="w-full text-left px-3 py-2 hover:bg-gray-100">Log Out</button>
                   </div>
                 )}
@@ -173,7 +175,7 @@ const NavBar = () => {
                 <div className="absolute right-0 top-full mt-2 w-36 bg-white text-gray-900 rounded-lg shadow-lg z-50">
                   <Link href="/user/myLearning" className="block px-3 py-2 hover:bg-gray-100">My Learning</Link>
                   <Link href="/user/myPurchase" className="block px-3 py-2 hover:bg-gray-100">My Purchase</Link>
-                  <Link href="/user/wishlist" className="block px-3 py-2 hover:bg-gray-100">Wish List</Link>
+                  <Link href="/user/wishlist" className="block px-3 py-2 hover:bg-gray-100">Wishlist</Link>
                   <Link href="/user/accountSetting" className="block px-3 py-2 hover:bg-gray-100">AccountSetting</Link>
                   <button onClick={handleLogout} className="w-full text-left px-3 py-2 hover:bg-gray-100">Log Out</button>
                 </div>

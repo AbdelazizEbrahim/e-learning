@@ -10,7 +10,6 @@ const Wishlist = () => {
   const [loading, setLoading] = useState(true);
   const [enrollLoading, setEnrollLoading] = useState({});
   const [removeLoading, setRemoveLoading] = useState({});
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -97,16 +96,13 @@ const Wishlist = () => {
   
     setRemoveLoading((prev) => ({ ...prev, [courseCode]: true }));
   
-    console.log("to delete");
     try {
-      console.log("email11: ",email);
-      console.log("course code: ", courseCode)
-      const response = await fetch(`/api/wishlist?email=${email}&courseCode=${courseCode}`, {
+      const response = await fetch(`/api/wishlist`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Send token for authentication if required
         },
+        body: JSON.stringify({ email, courseCode }),
       });
   
       console.log(response);
@@ -125,82 +121,10 @@ const Wishlist = () => {
     }
   };
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
-
   return (
     <div className="relative w-screen h-screen flex">
-      {/* Toggle Button */}
-      <button
-        className={`fixed top-16 left-0 z-50 p-2 bg-black text-white rounded-md transition-all duration-300 ${sidebarOpen ? 'hidden' : 'block'}`}
-        onClick={toggleSidebar}
-        style={{ width: '35px', height: '35px' }}
-      >
-        <svg
-          className="h-5 w-5"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d={sidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16m-7 6h7"}
-          />
-        </svg>
-      </button>
-
-      {/* Sidebar */}
-      <aside className={`fixed top-16 bottom-16 bg-black left-0 text-white transition-all duration-300 ${sidebarOpen ? 'w-32' : 'w-0'} overflow-hidden hover:w-25`}>
-        <div className="flex flex-col h-full">
-          {/* Sidebar Header */}
-          <div className="flex items-center justify-center p-4">
-            <button
-              className={`text-white p-2 ${sidebarOpen ? 'block' : 'hidden'}`}
-              onClick={toggleSidebar}
-            >
-              <svg
-                className="h-5 w-5"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-          
-          {/* Sidebar Links */}
-          <nav className="flex flex-col flex-1">
-            <div className={`flex-1 ${sidebarOpen ? 'block' : 'hidden'} p-4`}>
-              <Link href="/my-courses" className="block py-2 px-2 text-white hover:bg-gray-700 rounded-lg">
-                My Courses
-              </Link>
-              <Link href="#" className="block py-2 px-2 text-white hover:bg-gray-700 rounded-lg">
-                Button 2
-              </Link>
-              <Link href="#" className="block py-2 px-2 text-white hover:bg-gray-700 rounded-lg">
-                Button 3
-              </Link>
-              <Link href="#" className="block py-2 px-2 text-white hover:bg-gray-700 rounded-lg">
-                Button 4
-              </Link>
-            </div>
-          </nav>
-        </div>
-      </aside>
-
       {/* Main Content Area */}
-      <div className={`flex-1 ${sidebarOpen ? 'ml-32' : 'ml-0'} transition-margin duration-300 ease-in-out`}>
+      <div className="flex-1 p-5">
         <main className="relative flex flex-col items-center justify-center w-full h-full p-6">
           <div className="mt-28 bg-[#16202a] text-white p-6 rounded-lg shadow-lg w-full max-w-5xl">
             <h1 className="text-3xl font-semibold mb-4">Wishlist</h1>

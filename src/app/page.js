@@ -154,38 +154,6 @@ export default function Home() {
           )}
         </div>
 
-        {/* Instructor Advice Section */}
-        <hr className='my-8 border-gray-600' />
-        <h2 className='text-2xl font-semibold mb-4 text-black'>Instructor Advice</h2>
-        <div className='relative flex items-center'>
-          <button
-            onClick={() => handleInstructorNav(-1)}
-            className='absolute left-0 bg-gray-700 text-white p-2 rounded-full'
-          >
-            &lt;
-          </button>
-          {instructorAdvices.length > 0 && (
-            <div className='flex flex-col items-center p-4 bg-gray-800 rounded-lg shadow-lg w-72'>
-              <div className='relative mb-4'>
-                <Image
-                  src={ '/image.jpeg'}
-                  alt={instructorAdvices[currentInstructorIndex].name}
-                  width={80}
-                  height={80}
-                  className='w-20 h-20 object-cover rounded-full'
-                />
-              </div>
-              <h3 className='text-gray-400 mb-2 font-bold'>{instructorAdvices[currentInstructorIndex].name}</h3>
-              <p className='text-gray-400'>{instructorAdvices[currentInstructorIndex].advice}</p>
-            </div>
-          )}
-          <button
-            onClick={() => handleInstructorNav(1)}
-            className='absolute right-0 bg-gray-700 text-white p-2 rounded-full'
-          >
-            &gt;
-          </button>
-        </div>
 
         {/* Partnership Section */}
         <hr className='my-8 border-gray-600' />

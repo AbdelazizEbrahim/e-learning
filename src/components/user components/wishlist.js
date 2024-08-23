@@ -97,12 +97,12 @@ const Wishlist = () => {
     setRemoveLoading((prev) => ({ ...prev, [courseCode]: true }));
   
     try {
-      const response = await fetch(`/api/wishlist?email=${encodeURIComponent(email)}&courseCode=${encodeURIComponent(courseCode)}`, {
+      const response = await fetch(`/api/wishlist`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`, // Send token for authentication if required
         },
+        body: JSON.stringify({ email, courseCode }),
       });
   
       console.log(response);

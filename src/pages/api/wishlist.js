@@ -58,7 +58,7 @@ export default async (req, res) => {
 
         case 'DELETE':
             try {
-                const { email, courseCode } = req.query;
+                const { email, courseCode } = req.body;
                 console.log("email and course code: ",email, courseCode);
 
                 if (!email || !courseCode) {

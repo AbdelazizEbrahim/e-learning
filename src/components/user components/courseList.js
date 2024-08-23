@@ -22,17 +22,14 @@ const Dashboard = () => {
       setWishlist(data); // Set wishlist data
     } catch (error) {
       console.error('Error fetching wishlist:', error);
-      // alert('Failed to fetch wishlist.');
     }
   };
 
   // This useEffect triggers the reload when the page first opens
   useEffect(() => {
-    // Check if the "reloadedToken" is found in localStorage
     const reloadedToken = localStorage.getItem('reloadedToken');
     
     if (!reloadedToken) {
-      // If "reloadedToken" is not found, reload the page
       localStorage.setItem('reloadedToken', 'true');
       window.location.reload();
     }
@@ -54,7 +51,6 @@ const Dashboard = () => {
         }
       } catch (error) {
         console.error('Error fetching courses:', error);
-        // alert('Failed to fetch courses.');
       } finally {
         setLoading(false);
       }
@@ -79,13 +75,12 @@ const Dashboard = () => {
       router.push(`/user/enroll?courseCode=${encodeURIComponent(courseCode)}`);
     } catch (error) {
       console.error('Error occurred while redirecting:', error);
-      // alert('An error occurred while redirecting.');
     } finally {
       setEnrollLoading((prev) => ({ ...prev, [courseCode]: false }));
     }
   };
 
-  const addToWishlist = async (course) => {
+  const toggleWishlist = async (course) => {
     const token = localStorage.getItem('authToken');
 
     if (!token) {
@@ -108,57 +103,72 @@ const Dashboard = () => {
       return;
     }
 
-    const { courseCode, courseTitle, instructor, description, price, imageUrl, overview, requirements, whatWeWillLearn } = course;
+    const courseCode = course.courseCode;
 
     try {
-      const response = await fetch('/api/wishlist', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          courseCode,
-          courseTitle,
-          instructor,
-          description,
-          price,
-          imageUrl,
-          overview,
-          requirements,
-          whatWeWillLearn
-        }),
-      });
+      // Check if the course is in the wishlist
+      if (isCourseInWishlist(courseCode)) {
+        // Remove course from wishlist
+        const response = await fetch(`/api/wishlist`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, courseCode }),
+        });
 
-      if (!response.ok) {
-        console.error('Failed to add course to wishlist:', response);
-        const errorData = await response.json();
-        console.error('Error details:', errorData);
-        alert('Failed to add course to wishlist.');
+        if (!response.ok) {
+          throw new Error('Failed to remove course from wishlist');
+        }
+
+        // Refresh wishlist after removal
+        fetchWishlist(email);
+
       } else {
-        // alert('Course added to wishlist');
-        fetchWishlist(email); // Refresh wishlist
+        // Add course to wishlist
+        const response = await fetch('/api/wishlist', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            courseCode,
+            courseTitle: course.courseTitle,
+            instructor: course.instructor,
+            description: course.description,
+            price: course.price,
+            imageUrl: course.imageUrl,
+            overview: course.overview,
+            requirements: course.requirements,
+            whatWeWillLearn: course.whatWeWillLearn,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to add course to wishlist');
+        }
+
+        // Refresh wishlist after adding
+        fetchWishlist(email);
       }
     } catch (error) {
-      console.error('Error:', error);
-      alert('Failed to add course to wishlist.');
+      console.error('Error updating wishlist:', error);
+      alert('Failed to update wishlist.');
     }
   };
 
   const isCourseInWishlist = (courseCode) => {
-    return wishlist.some(course => course.courseCode === courseCode);
+    return Array.isArray(wishlist) && wishlist.some(course => course.courseCode === courseCode);
   };
 
-  // Filter approved courses
   const approvedCourses = courses.filter(course => course.isApproved);
-  // Filter new arrivals (not approved)
   const newArrivals = courses.filter(course => !course.isApproved);
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full p-6">
       <div className="mt-28 bg-[#16202a] text-white p-6 rounded-lg shadow-lg w-full max-w-5xl">
         <h1 className="text-3xl font-semibold mb-4">Course List</h1>
-        {/* Approved Courses Section */}
         <h2 className="text-2xl font-semibold mb-4">Approved Courses</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           {loading ? (
@@ -168,12 +178,12 @@ const Dashboard = () => {
               <div key={course._id} className="bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col relative">
                 <div className="relative mb-4">
                   <img
-                    src={course.imageUrl || '/image.jpeg'} // Use course image or default
+                    src={course.imageUrl || '/image.jpeg'}
                     alt={course.courseTitle}
                     className="w-full h-40 object-cover rounded-md"
                   />
                   <button
-                    onClick={() => addToWishlist(course)}
+                    onClick={() => toggleWishlist(course)}
                     className={`absolute top-2 right-2 ${
                       isCourseInWishlist(course.courseCode) ? 'text-red-800' : 'text-red-600 hover:text-red-800'
                     } font-bold text-2xl p-2 rounded border ${
