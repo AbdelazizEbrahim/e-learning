@@ -1,6 +1,5 @@
 import connect from '../../../utils/db';
 import User from '../../../model/User'; 
-import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 
@@ -39,11 +38,13 @@ export default async (req, res) => {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
-      socketTimeout: 30000,
     });
 
     console.log('Transporter created');
-
+    console.log(email);
+    console.log('Email User:', process.env.EMAIL_USER);
+    console.log('Email Pass:', process.env.EMAIL_PASS);
+    
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
@@ -51,11 +52,10 @@ export default async (req, res) => {
       text: `Your OTP code is ${otp}`
     };
 
-    if(mailOptions){
     console.log('Sending email...');
     await transporter.sendMail(mailOptions);
     console.log('Email sent');
-    }
+
     // Save OTP to user document
     console.log('Saving OTP to user document...');
     resetUser.otp = otp;
@@ -65,6 +65,6 @@ export default async (req, res) => {
     res.status(200).json({ message: 'OTP code sent successfully' });
   } catch (error) {
     console.error('Error during OTP sending:', error); // Log error for debugging
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: 'An error occurred while sending the OTP' });
   }
 };

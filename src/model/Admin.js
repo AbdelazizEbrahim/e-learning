@@ -27,7 +27,7 @@ const adminSchema = new mongoose.Schema({
         type: String,
         required: true
     }
-});
+}, { timestamps: true }); // Correctly placed the closing parenthesis
 
 // Avoid redefining the model if it already exists
 const Admin = mongoose.models.Admin || mongoose.model('Admin', adminSchema);

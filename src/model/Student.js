@@ -1,30 +1,39 @@
 import mongoose from 'mongoose';
 
-const studentSchema = new mongoose.Schema({
-    studentName: {
-        type: String,
-        required: true
-    },
-    fatherName: {
-        type: String,
-        required: true
-    },
-    studentId: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    city: {
-        type: String,
-        required: true
-    },
-    enrolledCourse: {
-        type: String,
-        required: false
-    }
-});
+const userProfileSchema = new mongoose.Schema({
+  fullName: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  studentId: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  age: {
+    type: Number,
+    required: true,
+  },
+  gender: {
+    type: String,
+    required: true,
+  },
+  city: {
+    type: String,
+    required: true,
+  },
+  biography: {
+    type: String,
+    required: true,
+  },
+}, { timestamps: true });
 
 // Avoid redefining the model if it already exists
-const Student = mongoose.models.Student || mongoose.model('Student', studentSchema);
+const UserProfile = mongoose.models.UserProfile || mongoose.model('UserProfile', userProfileSchema);
 
-export default Student;
+export default UserProfile;

@@ -23,7 +23,12 @@ export default async function handler(req, res) {
                     return res.status(401).json({ message: 'Invalid email or password' });
                 }
 
-                const token = jwt.sign({ userId: user._id, role: user.role }, 'your_jwt_secret', { expiresIn: '1h' });
+                // Create a JWT token including role and isInstructor
+                const token = jwt.sign(
+                    { userId: user._id, email: user.email, role: user.role, isInstructor: user.isInstructor },
+                    'your_jwt_secret',
+                    { expiresIn: '1h' }
+                );
 
                 // Determine the redirect URL based on the user's role
                 const redirectUrl = user.role === 'admin' ? '/admin' : '/main';

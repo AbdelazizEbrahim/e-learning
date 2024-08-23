@@ -1,9 +1,10 @@
-'use client'
+'use client';
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function Contact() {
   const [email, setEmail] = useState('');
@@ -43,9 +44,9 @@ export default function Contact() {
   };
 
   return (
-    <div className='relative h-screen w-screen'>
+    <div className='relative h-screen w-screen mt-0'>
       <div className='relative w-full h-full'>
-        <main className='flex flex-col items-center justify-center w-full h-full pt-2'>
+        <main className='flex flex-col items-center w-full h-full pt-2'>
           <div className='bg-[#16202a] text-white p-6 rounded-lg shadow-lg max-w-md mx-auto'>
             <h1 className='text-3xl font-semibold mb-4'>Contact Us</h1>
             <p className='text-lg mb-8'>
@@ -63,7 +64,7 @@ export default function Contact() {
                 className='bg-transparent border border-gray-300 rounded-full p-2'
               />
               <Label htmlFor='message'>Message*</Label>
-              <textarea
+              <Textarea
                 id='message'
                 placeholder='Your message...'
                 rows='4'

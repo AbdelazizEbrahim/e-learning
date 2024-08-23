@@ -1,5 +1,5 @@
 import connect from '../../utils/db'; // Import your database connection function
-import Admin from '../../model/admin'; // Import your Admin model
+import Admin from '../../model/Admin'; // Import your Admin model
 
 // Ensure dbConnect is called
 connect();
@@ -9,12 +9,12 @@ const handler = async (req, res) => {
   switch (req.method) {
     case 'POST': // Create a new admin
       return createAdmin(req, res);
-    case 'GET': // Get all admins
-      return getAdmins(req, res);
-    case 'PUT': // Update an admin
-      return updateAdmin(req, res);
-    case 'DELETE': // Delete an admin
-      return deleteAdmin(req, res);
+    case 'GET': // Get an admin by email
+      return getAdminByEmail(req, res);
+    case 'PUT': // Update an admin by email
+      return updateAdminByEmail(req, res);
+    case 'DELETE': // Delete an admin by email
+      return deleteAdminByEmail(req, res);
     default:
       return res.status(405).json({ message: 'Method Not Allowed' });
   }
@@ -32,21 +32,29 @@ const createAdmin = async (req, res) => {
   }
 };
 
-// Get all admins
-const getAdmins = async (req, res) => {
+// Get an admin by email
+const getAdminByEmail = async (req, res) => {
+  const { email } = req.query; // Email passed in the query string
   try {
-    const admins = await Admin.find();
-    res.status(200).json(admins);
+    const admin = await Admin.findOne({ adminEmail: email });
+    if (!admin) {
+      return res.status(404).json({ message: 'Admin not found' });
+    }
+    res.status(200).json(admin);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// Update an admin
-const updateAdmin = async (req, res) => {
-  const { id } = req.query; // Assuming you pass the admin ID in the query string
+// Update an admin by email
+const updateAdminByEmail = async (req, res) => {
+  const { email } = req.query; // Email passed in the query string
   try {
-    const updatedAdmin = await Admin.findByIdAndUpdate(id, req.body, { new: true });
+    const updatedAdmin = await Admin.findOneAndUpdate(
+      { adminEmail: email },
+      req.body,
+      { new: true }
+    );
     if (!updatedAdmin) {
       return res.status(404).json({ message: 'Admin not found' });
     }
@@ -56,11 +64,11 @@ const updateAdmin = async (req, res) => {
   }
 };
 
-// Delete an admin
-const deleteAdmin = async (req, res) => {
-  const { id } = req.query; // Assuming you pass the admin ID in the query string
+// Delete an admin by email
+const deleteAdminByEmail = async (req, res) => {
+  const { email } = req.query; // Email passed in the query string
   try {
-    const deletedAdmin = await Admin.findByIdAndDelete(id);
+    const deletedAdmin = await Admin.findOneAndDelete({ adminEmail: email });
     if (!deletedAdmin) {
       return res.status(404).json({ message: 'Admin not found' });
     }

@@ -37,7 +37,7 @@ export default function ResetPassword() {
       console.log('Data fetched:', data);
 
       // Handle successful password reset
-      router.push('/enterOtp');
+      router.push('/signin/enterOtp');
     } catch (err) {
       console.error('Error:', err.message);
     } finally {
@@ -47,7 +47,7 @@ export default function ResetPassword() {
 
   return (
     <div className='relative w-screen h-screen'>
-      <main className='relative flex items-center justify-center w-full h-full bg-black/50'>
+      <main className='relative flex items-center justify-center w-full h-full '>
         <div className='bg-[#16202a] text-white p-6 rounded-lg shadow-lg'>
           <div className='my-6'>
             <h1 className='text-3xl font-semibold'>Reset Password</h1>

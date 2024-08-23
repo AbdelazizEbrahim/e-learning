@@ -1,6 +1,6 @@
 import { Inter } from "next/font/google";
-import NavBar from "./NavBar";
-import Footer from "./Footer";
+import NavBar from "../components/NavBar";
+import Footer from "../components/footer";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -16,7 +16,7 @@ export default function RootLayout({ children }) {
       <body className={inter.className}>
         <div className="flex flex-col h-screen bg-gray-100"> {/* Soft color background */}
           <NavBar />
-          <main className="flex-1 overflow-y-auto overflow-hidden p-4"> 
+          <main className="flex-1 overflow-y-scroll overflow-hidden mt"> 
             {children}
           </main>
           <Footer />

@@ -18,23 +18,23 @@ export default async (req, res) => {
   } else if (req.method === 'POST') {
     try {
       console.log("Handling POST request for adding a student");
-      const { studentName, fatherName, studentId, city, enrolledCourse } = req.body;
-      console.log(`Received Student data: Name=${studentName}, Father Name=${fatherName}, ID=${studentId}, City=${city}, Course=${enrolledCourse}`);
+      const { studentName, fatherName, studentId, city, courseCode } = req.body;
+      console.log(`Received Student data: Name=${studentName}, Father Name=${fatherName}, ID=${studentId}, City=${city}, Course=${courseCode}`);
 
-      const existingStudent = await Student.findOne({ studentId, enrolledCourse });
+      const existingStudent = await Student.findOne({ studentId, courseCode });
 
       if (existingStudent) {
-        console.log("Student already exists with the given ID:", enrolledCourse);
+        console.log("Student already exists with the given ID:", courseCode);
         return res.status(400).json({ message: 'Student already exists' });
       } else {
-        const newStudent = new Student({ studentName, fatherName, studentId, city, enrolledCourse });
+        const newStudent = new Student({ studentName, fatherName, studentId, city, courseCode });
         await newStudent.save();
         console.log("New Student enrolled successfully:", newStudent);
         return res.status(201).json({ message: 'Student added successfully' });
       }
     } catch (err) {
       console.error("Internal server error while enrolling:", err.message);
-      return res.status(500).json({ message: 'Failed to Enroll' });
+      return res.status(500).json({ message: err.message });
     }
   } else {
     // Method Not Allowed
