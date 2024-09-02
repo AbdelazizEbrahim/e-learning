@@ -1,19 +1,45 @@
+import nodemailer from 'nodemailer';
 import Course from '../../model/Course';
+import User from '../../model/User';
 import connect from '../../utils/db';
 
-// Helper function to handle errors
 const handleError = (res, error, message) => {
     console.error(message, error);
     return res.status(500).json({ message });
 };
 
+async function notifyAdmins(subject, message) {
+    try {
+        const admins = await User.find({ role: 'admin' });
+        if (!admins.length) {
+            console.log('No admins found');
+            return;
+        }
+        const transporter = nodemailer.createTransport({
+            service: 'Gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            },
+        });
+
+        const adminEmails = admins.map(admin => admin.email);
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: adminEmails,
+            subject: subject,
+            text: message,
+        });
+
+        console.log('Email notifications sent to admins');
+    } catch (error) {
+        console.error('Error sending email notifications:', error);
+    }
+}
+
 // eslint-disable-next-line import/no-anonymous-default-export
 export default async (req, res) => {
     await connect();
-
-    console.log(`Request Method: ${req.method}`);
-    console.log('Request Body:', req.body);
-    console.log('Request Query:', req.query);
 
     try {
         switch (req.method) {
@@ -30,21 +56,7 @@ export default async (req, res) => {
                     whatWeWillLearn 
                 } = req.body;
 
-                console.log('POST Request Body:', { 
-                    courseTitle, 
-                    courseCode, 
-                    instructor, 
-                    description, 
-                    price, 
-                    imageUrl, 
-                    overview, 
-                    requirements, 
-                    whatWeWillLearn 
-                });
-
                 const existingCourse = await Course.findOne({ courseCode });
-                console.log('Existing Course:', existingCourse);
-
                 if (existingCourse) {
                     return res.status(400).json({ message: 'Course already exists' });
                 }
@@ -62,76 +74,50 @@ export default async (req, res) => {
                 });
                 
                 await newCourse.save();
-                console.log('New Course Saved:', newCourse);
+                const message = `A new course titled "${courseTitle}" has been created by ${instructor}.`;
+                await notifyAdmins('New Course Created', message);
+
                 return res.status(201).json({ message: 'Course added successfully' });
 
             case 'PUT':
-                const { courseCode: updateCourseCode, isApproved } = req.body;
+                const { courseCode: updateCourseCode, isApproved, isHome } = req.body;
 
-                console.log('PUT Request Body:', { 
-                    courseCode: updateCourseCode, 
-                    isApproved 
-                });
-
-                // Check if courseCode and isApproved are provided
-                if (updateCourseCode && typeof isApproved === 'boolean') {
-                    const updatedCourseApproval = await Course.findOneAndUpdate(
-                        { courseCode: updateCourseCode },
-                        { isApproved },
-                        { new: true }
-                    );
-                    console.log('Updated Course Approval:', updatedCourseApproval);
-
-                    if (!updatedCourseApproval) {
-                        return res.status(404).json({ message: 'Course not found' });
+                if (updateCourseCode) {
+                    let updateData = {};
+                    if (typeof isApproved === 'boolean') {
+                        updateData.isApproved = isApproved;
+                    }
+                    if (typeof isHome === 'boolean') {
+                        updateData.isHome = isHome;
                     }
 
-                    return res.status(200).json({ message: 'Course approval status updated successfully' });
+                    if (Object.keys(updateData).length > 0) {
+                        const updatedCourse = await Course.findOneAndUpdate(
+                            { courseCode: updateCourseCode },
+                            updateData,
+                            { new: true }
+                        );
+
+                        if (!updatedCourse) {
+                            return res.status(404).json({ message: 'Course not found' });
+                        }
+
+                        return res.status(200).json({ message: 'Course updated successfully' });
+                    } else {
+                        return res.status(400).json({ message: 'No valid update data provided' });
+                    }
+                } else {
+                    return res.status(400).json({ message: 'Course code is required' });
                 }
-
-                // Fallback to other updates if courseCode and isApproved are not provided
-                const { 
-                    courseTitle: updatedCourseTitle, 
-                    instructor: updatedInstructor, 
-                    description: updatedDescription, 
-                    price: updatedPrice, 
-                    imageUrl: updatedImageUrl, 
-                    overview: updatedOverview, 
-                    requirements: updatedRequirements, 
-                    whatWeWillLearn: updatedWhatWeWillLearn 
-                } = req.body;
-
-                const updatedCourse = await Course.findOneAndUpdate(
-                    { courseCode: updateCourseCode },
-                    { 
-                        courseTitle: updatedCourseTitle, 
-                        instructor: updatedInstructor, 
-                        description: updatedDescription, 
-                        price: updatedPrice, 
-                        imageUrl: updatedImageUrl, 
-                        overview: updatedOverview, 
-                        requirements: updatedRequirements, 
-                        whatWeWillLearn: updatedWhatWeWillLearn 
-                    },
-                    { new: true }
-                );
-
-                if (!updatedCourse) {
-                    return res.status(404).json({ message: 'Course not found' });
-                }
-
-                return res.status(200).json({ message: 'Course updated successfully' });
 
             case 'DELETE':
                 const { courseCode: deleteCourseCode } = req.body;
-                console.log('DELETE Request Body:', { courseCode: deleteCourseCode });
 
                 if (!deleteCourseCode) {
                     return res.status(400).json({ message: 'Course code is required' });
                 }
 
                 const deletedCourse = await Course.findOneAndDelete({ courseCode: deleteCourseCode });
-                console.log('Deleted Course:', deletedCourse);
 
                 if (!deletedCourse) {
                     return res.status(404).json({ message: 'Course not found' });
@@ -139,34 +125,73 @@ export default async (req, res) => {
 
                 return res.status(200).json({ message: 'Course deleted successfully' });
 
-            case 'GET':
-                const { courseCode: getCourseCode, instructor: getInstructor } = req.query;
-                console.log('GET Query:', { courseCode: getCourseCode, instructor: getInstructor });
+                case 'GET':
+    const { courseCode: getCourseCode, instructor: getInstructor, isHome: getIsHome } = req.query;
 
-                if (getCourseCode) {
-                    const course = await Course.findOne({ courseCode: getCourseCode });
-                    console.log('Fetched Course:', course);
+    console.log("Received parameters - courseCode:", getCourseCode, "instructor:", getInstructor, "isHome:", getIsHome);
 
-                    if (!course) {
-                        return res.status(404).json({ message: 'Course not found' });
-                    }
+    if (getCourseCode) {
+        console.log("Fetching course with courseCode:", getCourseCode);
+        try {
+            const course = await Course.findOne({ courseCode: getCourseCode });
 
-                    return res.status(200).json(course);
-                } else if (getInstructor) {
-                    const coursesByInstructor = await Course.find({ instructor: getInstructor });
-                    console.log(`Courses by ${getInstructor}:`, coursesByInstructor);
+            if (!course) {
+                console.log("Course not found for courseCode:", getCourseCode);
+                return res.status(404).json({ message: 'Course not found' });
+            }
 
-                    if (!coursesByInstructor.length) {
-                        return res.status(404).json({ message: 'No courses found for this instructor' });
-                    }
+            console.log("Course found:", course);
+            return res.status(200).json(course);
+        } catch (error) {
+            console.error('Error fetching course:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+    } 
+    
+    if (getInstructor) {
+        console.log("Fetching courses by instructor:", getInstructor);
+        try {
+            const coursesByInstructor = await Course.find({ instructor: getInstructor });
 
-                    return res.status(200).json(coursesByInstructor);
-                } else {
-                    const allCourses = await Course.find();
-                    console.log('All Courses:', allCourses);
-                    return res.status(200).json(allCourses);
-                }
+            if (!coursesByInstructor.length) {
+                return res.status(404).json({ message: 'No courses found for this instructor' });
+            }
 
+            console.log("Courses found for instructor:", coursesByInstructor);
+            return res.status(200).json(coursesByInstructor);
+        } catch (error) {
+            console.error('Error fetching courses by instructor:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+    } 
+    
+    if (getIsHome === 'true') {
+        console.log("Fetching home courses");
+        try {
+            const homeCourses = await Course.find({ isHome: true });
+
+            if (!homeCourses.length) {
+                return res.status(404).json({ message: 'No courses found for the home page' });
+            }
+
+            console.log("Courses fetched for home:", homeCourses);
+            return res.status(200).json(homeCourses);
+        } catch (error) {
+            console.error('Error fetching home courses:', error);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+    }
+    
+    console.log("Fetching all courses");
+    try {
+        const allCourses = await Course.find();
+        return res.status(200).json(allCourses);
+    } catch (error) {
+        console.error('Error fetching all courses:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+
+                
             default:
                 return res.status(405).json({ message: 'Method not allowed' });
         }

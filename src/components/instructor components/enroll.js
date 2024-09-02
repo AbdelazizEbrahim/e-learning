@@ -12,7 +12,6 @@ export default function EnrollStudent() {
   const [courseInfo, setCourseInfo] = useState(null);
   const [loading, setLoading] = useState(false);
   const [userEmail, setUserEmail] = useState('');
-  const [userRole, setUserRole] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
@@ -25,11 +24,9 @@ export default function EnrollStudent() {
 
         if (decoded && decoded.email) {
           setUserEmail(decoded.email);
-          setUserRole(decoded.role); 
           console.log('User Email set:', decoded.email); // Log email set
-          console.log('User Role set:', decoded.role); // Log role set
         } else {
-          console.warn('Decoded token does not contain email or role');
+          console.warn('Decoded token does not contain email');
         }
       } catch (error) {
         console.error('Failed to decode token:', error);
@@ -51,7 +48,7 @@ export default function EnrollStudent() {
   }, [searchParams, router]);
 
   const fetchCourseInfo = async (code) => {
-    console.log('Fetching course info for code:', code); 
+    console.log('Fetching course info for code:', code); // Log before fetching course info
 
     try {
       const response = await fetch(`/api/course?courseCode=${code}`);
@@ -67,96 +64,52 @@ export default function EnrollStudent() {
   };
 
   const handleAddToCart = async () => {
-    console.log('User Email:', userEmail); 
-    console.log('Course Info:', courseInfo); 
+    console.log('User Email:', userEmail); // Log user email
+    console.log('Course Info:', courseInfo); // Log course info
 
     if (!userEmail || !courseInfo) {
-        alert('Missing user email or course information');
-        return;
+      alert('Missing user email or course information');
+      return;
     }
 
     setLoading(true);
     try {
-        // Add to cart
-        const cartResponse = await fetch('/api/cart', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                userEmail,
-                courseCode: courseInfo.courseCode,
-                price: courseInfo.price,
-                paymentId: '', // Assuming you will handle this later
-                paymentStatus: 'Pending',
-                status: 'Pending',
-                courseTitle: courseInfo.courseTitle,
-                instructor: courseInfo.instructor,
-                description: courseInfo.description,
-                overview: courseInfo.overview,
-                requirements: courseInfo.requirements,
-                whatWeWillLearn: courseInfo.whatWeWillLearn
-            }),
-        });
+      const response = await fetch('/api/cart', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userEmail,
+          courseCode: courseInfo.courseCode,
+          price: courseInfo.price,
+          paymentId: '', 
+          paymentStatus: 'Pending', 
+          status: 'Pending', 
+          courseTitle: courseInfo.courseTitle,
+          instructor: courseInfo.instructor,
+          description: courseInfo.description,
+          overview: courseInfo.overview,
+          requirements: courseInfo.requirements,
+          whatWeWillLearn: courseInfo.whatWeWillLearn,
+          isHome: courseInfo.isHome
+        }),
+      });
 
-        const cartResponseData = await cartResponse.json();
-
-        if (cartResponse.ok) {
-            alert('Course added to cart successfully');
-
-            // After adding to cart, add to enrollment
-            const enrollmentResponse = await fetch('/api/enrollment', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    userEmail,
-                    courseCode: courseInfo.courseCode,
-                    price: courseInfo.price,
-                    paymentId: '', // Assuming you will handle this later
-                    paymentStatus: 'Pending',
-                    status: 'Pending',
-                    imageUrl: courseInfo.imageUrl,
-                    courseTitle: courseInfo.courseTitle,
-                    instructor: courseInfo.instructor,
-                    description: courseInfo.description,
-                    overview: courseInfo.overview,
-                    requirements: courseInfo.requirements,
-                    whatWeWillLearn: courseInfo.whatWeWillLearn
-                }),
-            });
-
-            const enrollmentResponseData = await enrollmentResponse.json();
-
-            if (enrollmentResponse.ok) {
-                alert('Enrollment successful');
-                // Redirect based on role
-                if (userRole === 'user') {
-                    router.push('/user'); 
-                } else if (userRole === 'instructor') {
-                    router.push('/instructor'); 
-                }
-            } else {
-              console.log("data: ", enrollmentResponse);
-                alert(`Failed to enroll: ${enrollmentResponseData.message}`);
-            }
-        } else {
-            alert(`Failed to add course to cart: ${cartResponseData.message}`);
-            if (userRole === 'user') {
-                router.push("/user");
-            } else if (userRole === 'instructor') {
-                router.push('/instructor');
-            }
-        }
+      if (response.ok) {
+        alert('Course added to cart successfully');
+        router.push('/instructor')
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to add course to cart: ${errorData.message}`);
+      }
     } catch (error) {
-        console.error('Failed to add course to cart or enrollment:', error);
-        alert('Failed to add course to cart or enrollment');
+      console.error('Failed to add course to cart:', error);
+      alert('Failed to add course to cart');
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-};
-
+  };
 
   return (
     <div className='relative w-screen h-screen flex items-center justify-center mt-0'>

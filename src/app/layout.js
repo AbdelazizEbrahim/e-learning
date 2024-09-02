@@ -1,13 +1,13 @@
 import { Inter } from "next/font/google";
-import NavBar from "../components/NavBar";
-import Footer from "../components/footer";
+import NavBar from "../components/common components/NavBar";
+import Footer from "../components/common components/footer";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "To Do App",
-  description: "To Do List Application",
+  title: "Stark E-Learning",
+  description: "E-Learning",
 };
 
 export default function RootLayout({ children }) {

@@ -6,6 +6,7 @@ const CourseList = () => {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [deleteLoading, setDeleteLoading] = useState({});
+    const [isHomeLoading, setIsHomeLoading] = useState({});
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -71,11 +72,37 @@ const CourseList = () => {
         }
     };
 
+    const handleToggleHome = async (courseCode, isHome) => {
+        setIsHomeLoading((prev) => ({ ...prev, [courseCode]: true }));
+        try {
+            const response = await fetch('/api/course', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ courseCode, isHome: !isHome }),
+            });
+            if (response.ok) {
+                setCourses((prevCourses) =>
+                    prevCourses.map((course) =>
+                        course.courseCode === courseCode ? { ...course, isHome: !isHome } : course
+                    )
+                );
+            } else {
+                console.error('Failed to update isHome status');
+            }
+        } catch (error) {
+            console.error('Error updating isHome status:', error);
+        } finally {
+            setIsHomeLoading((prev) => ({ ...prev, [courseCode]: false }));
+        }
+    };
+
     const approvedCourses = courses.filter((course) => course.isApproved);
     const newArrivals = courses.filter((course) => !course.isApproved);
 
     return (
-        <div className="p-4 mr-8 ">
+        <div className="p-4 mr-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {/* Approved Courses Section */}
                 <div className="bg-gray-800 p-4 rounded-lg">
@@ -98,13 +125,22 @@ const CourseList = () => {
                                     <p className="text-gray-400">Overview: {course.overview}</p>
                                     <p className="text-gray-400">Requirements: {course.requirements}</p>
                                     <p className="text-gray-400">What You Will Learn: {course.whatWeWillLearn}</p>
-                                    <button
-                                        onClick={() => handleDelete(course.courseCode)}
-                                        className={`bg-red-600 text-white py-2 px-4 rounded hover:bg-red-400 transition-colors duration-300 ${deleteLoading[course.courseCode] ? 'cursor-wait opacity-50' : ''}`}
-                                        disabled={deleteLoading[course.courseCode]}
-                                    >
-                                        {deleteLoading[course.courseCode] ? 'Deleting...' : 'Delete'}
-                                    </button>
+                                    <div className="flex justify-between mt-4">
+                                        <button
+                                            onClick={() => handleDelete(course.courseCode)}
+                                            className={`bg-red-600 text-white py-2 px-4 rounded hover:bg-red-400 transition-colors duration-300 ${deleteLoading[course.courseCode] ? 'cursor-wait opacity-50' : ''}`}
+                                            disabled={deleteLoading[course.courseCode]}
+                                        >
+                                            {deleteLoading[course.courseCode] ? 'Deleting...' : 'Delete'}
+                                        </button>
+                                        <button
+                                            onClick={() => handleToggleHome(course.courseCode, course.isHome)}
+                                            className={`bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-400 transition-colors duration-300 ${isHomeLoading[course.courseCode] ? 'cursor-wait opacity-50' : ''}`}
+                                            disabled={isHomeLoading[course.courseCode]}
+                                        >
+                                            {course.isHome ? 'Remove from Home' : 'Add to Home'}
+                                        </button>
+                                    </div>
                                 </div>
                             ))
                         )}

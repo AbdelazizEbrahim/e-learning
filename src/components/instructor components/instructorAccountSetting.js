@@ -90,7 +90,7 @@ const AccountSettings = () => {
     if (formName === 'uploadDocumentation') {
       setFormData(prevData => ({
         ...prevData,
-        degree: '',
+        degree: null,
         cv: null
       }));
       setShowDocForm(true);
@@ -145,10 +145,10 @@ const AccountSettings = () => {
 
       } else if (activeForm === 'uploadDocumentation') {
         const formDataForUpload = new FormData();
-        formDataForUpload.append('degree', formData.degree);
-        formDataForUpload.append('cv', formData.cv);
+        if (formData.degree) formDataForUpload.append('degree', formData.degree);
+        if (formData.cv) formDataForUpload.append('cv', formData.cv);
         
-        response = await fetch(`/api/instructorProfile/uploadDocumentation`, {
+        response = await fetch(`/api/files`, {
           method: 'POST',
           body: formDataForUpload,
           headers: {
@@ -161,7 +161,9 @@ const AccountSettings = () => {
         throw new Error('Action failed');
       }
 
+      console.log("response: ",response)
       const result = await response.json();
+      console.log("data: ", result);
       if (result.success) {
         alert('Action completed successfully');
         handleClose();

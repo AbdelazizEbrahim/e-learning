@@ -7,30 +7,31 @@ export default async (req, res) => {
 
   if (req.method === 'GET') {
     try {
-      const { email } = req.query;
+        const { email } = req.query;
 
-      if (email) {
-        // Fetch specific user profile if email is provided
-        const userProfiles = await UserProfile.find({ email });
+        if (email) {
+            // Fetch specific user profile if email is provided
+            const userProfiles = await UserProfile.find({ email });
 
-        if (userProfiles.length === 0) {
-          return res.status(404).json({ message: 'User profile not found' });
+            if (userProfiles.length === 0) {
+                return res.status(404).json({ message: 'User profile not found' });
+            }
+
+            // Return the user profiles directly as a flat array
+            return res.status(200).json(userProfiles);
+        } else {
+            // Fetch all user profiles if email is not provided
+            const userProfiles = await UserProfile.find({});
+
+            // Return the user profiles directly as a flat array
+            return res.status(200).json(userProfiles);
         }
-
-        console.log("Total number of user profiles found by email:", userProfiles.length);
-        return res.status(200).json({ message: "Successfully Fetched", data: userProfiles });
-      } else {
-        // Fetch all user profiles if email is not provided
-        const userProfiles = await UserProfile.find({});
-
-        console.log("Total number of user profiles fetched:", userProfiles.length);
-        return res.status(200).json({ message: "Successfully Fetched", data: userProfiles });
-      }
     } catch (err) {
-      console.error("Error while fetching user profiles:", err.message);
-      return res.status(500).json({ message: "Internal Server Error" });
+        console.error("Error while fetching user profiles:", err.message);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
-  } else if (req.method === 'POST') {
+}
+else if (req.method === 'POST') {
     try {
       const { fullName, email, studentId, age, gender, city, biography } = req.body;
       console.log("Data received: ", { fullName, email, studentId, age, gender, city, biography });

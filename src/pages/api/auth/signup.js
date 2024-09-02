@@ -1,6 +1,37 @@
 import bcrypt from 'bcryptjs';
+import nodemailer from 'nodemailer';
 import connect from '../../../utils/db';
 import User from '../../../model/User';
+
+async function notifyAdmins(subject, message) {
+  try {
+    const admins = await User.find({ role: 'admin' });
+
+    if (!admins.length) {
+      console.log('No admins found');
+      return;
+    }
+    const transporter = nodemailer.createTransport({
+      service: 'Gmail',  
+      auth: {
+        user: process.env.EMAIL_USER, 
+        pass: process.env.EMAIL_PASS, 
+      },
+    });
+    const adminEmails = admins.map(admin => admin.email);
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,  
+      to: adminEmails,  
+      subject: subject, 
+      text: message, 
+    });
+
+    console.log('Email notifications sent to admins');
+  } catch (error) {
+    console.error('Error sending email notifications:', error);
+  }
+}
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default async (req, res) => {
@@ -19,7 +50,6 @@ export default async (req, res) => {
       const existingUser = await User.findOne({ email });
       console.log("finished Finding user...");
 
-      console.log("Finding user...:", existingUser );
       if (existingUser) {
         return res.status(422).json({ message: 'User already exists!' });
       }
@@ -37,6 +67,12 @@ export default async (req, res) => {
       await newUser.save();
 
       console.log("User created");
+
+      // Notify all admins of the new registration
+      const userRole = role === 'instructor' ? 'Instructor' : 'User';
+      const message = `${email} has just registered as ${userRole} in the platform.`;
+      await notifyAdmins(`${userRole} Registered`, message);
+
       return res.status(201).json({ message: 'User created!' });
     } catch (error) {
       console.error('Signup error:', error);

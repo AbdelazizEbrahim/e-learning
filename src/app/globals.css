@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  scroll-behavior: smooth;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -81,3 +85,70 @@
     box-shadow: 0 0 20px 10px #fffbeb;
   }
 }
+
+
+@keyframes slide-left-1 {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes slide-left-2 {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-left-3 {
+  0% {
+    transform: translateX(200%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes slide-left-4 {
+  0% {
+    transform: translateX(300%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+@keyframes slide-left-5 {
+  0% {
+    transform: translateX(400%);
+  }
+  100% {
+    transform: translateX(300%);
+  }
+}
+
+.animate-slide-left-1 {
+  animation: slide-left-1 0.5s ease-in-out forwards;
+}
+
+.animate-slide-left-2 {
+  animation: slide-left-2 0.5s ease-in-out forwards;
+}
+
+.animate-slide-left-3 {
+  animation: slide-left-3 0.5s ease-in-out forwards;
+}
+
+.animate-slide-left-4 {
+  animation: slide-left-4 0.5s ease-in-out forwards;
+}
+
+.animate-slide-left-5 {
+  animation: slide-left-5 0.5s ease-in-out forwards;
+}
+

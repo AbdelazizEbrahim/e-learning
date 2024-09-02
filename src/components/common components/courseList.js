@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import jwt from 'jsonwebtoken';
 
@@ -36,27 +37,57 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    const fetchCourses = async () => {
+    const fetchEnrollmentAndCourses = async () => {
       setLoading(true);
       try {
-        const response = await fetch('/api/course');
-        if (!response.ok) {
-          throw new Error('Failed to fetch courses');
+        // Fetch enrollment data
+        const token = localStorage.getItem('authToken');
+        let email = '';
+        if (token) {
+          const decoded = jwt.decode(token);
+          email = decoded?.email || '';
         }
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          setCourses(data);
+
+        console.log("starting....." )
+        const enrollmentResponse = await fetch(`/api/enrollment?userEmail=${email}&paymentStatus=PAID`);
+        if (!enrollmentResponse.ok) {
+          console.log('Failed to fetch enrollment data');
+        }
+        console.log("enrollment res: ", enrollmentResponse)
+
+        const enrolled = await enrollmentResponse.json();
+        const enrolledCourses = enrolled.data;
+        console.log("enrolled: ", enrolledCourses);
+
+        // Fetch courses data
+        const coursesResponse = await fetch('/api/course');
+        if (!coursesResponse.ok) {
+          console.log('Failed to fetch courses');
+        }
+        const allCourses = await coursesResponse.json();
+        console.log("all: ", allCourses);
+
+        let filteredCourses;
+        console.log("enrolled: ", enrolledCourses)
+
+        if (!enrolledCourses) {
+          // If enrollment data is empty, render all courses
+          filteredCourses = allCourses;
         } else {
-          alert('Unexpected data format.');
+          // Filter courses that are not in enrollment
+          const enrolledCourseCodes = new Set(enrolledCourses.map(course => course.courseCode));
+          filteredCourses = allCourses.filter(course => !enrolledCourseCodes.has(course.courseCode));
         }
+
+        setCourses(filteredCourses);
       } catch (error) {
-        console.error('Error fetching courses:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCourses();
+    fetchEnrollmentAndCourses();
 
     // Decode the token to get the user's email and fetch wishlist
     const token = localStorage.getItem('authToken');
@@ -163,13 +194,11 @@ const Dashboard = () => {
   };
 
   const approvedCourses = courses.filter(course => course.isApproved);
-  const newArrivals = courses.filter(course => !course.isApproved);
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full p-6">
+    <div className="flex flex-col items-center justify-center w-full h-full p-6 mt-0">
       <div className="mt-28 bg-[#16202a] text-white p-6 rounded-lg shadow-lg w-full max-w-5xl">
         <h1 className="text-3xl font-semibold mb-4">Course List</h1>
-        <h2 className="text-2xl font-semibold mb-4">Approved Courses</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           {loading ? (
             <p className="text-white">Loading...</p>
@@ -177,21 +206,13 @@ const Dashboard = () => {
             approvedCourses.map((course) => (
               <div key={course._id} className="bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col relative">
                 <div className="relative mb-4">
-                  <img
-                    src={course.imageUrl || '/image.jpeg'}
-                    alt={course.courseTitle}
-                    className="w-full h-40 object-cover rounded-md"
-                  />
-                  <button
-                    onClick={() => toggleWishlist(course)}
-                    className={`absolute top-2 right-2 ${
-                      isCourseInWishlist(course.courseCode) ? 'text-red-800' : 'text-red-600 hover:text-red-800'
-                    } font-bold text-2xl p-2 rounded border ${
-                      isCourseInWishlist(course.courseCode) ? 'border-red-800' : 'border-red-600 hover:border-red-800'
-                    }`}
-                  >
-                    {isCourseInWishlist(course.courseCode) ? '❤️' : '♡'}
-                  </button>
+                <Image
+                  src={ '/image.jpeg'}
+                  alt={course.courseTitle}
+                  width={400}
+                  height={160} // Adjust height as per the aspect ratio
+                  className="object-cover rounded-md w-full h-40"
+                />
                 </div>
                 <h2 className="text-xl font-semibold mb-2">Course Name: {course.courseTitle}</h2>
                 <p className="text-gray-400 mb-2">Course Code: {course.courseCode}</p>

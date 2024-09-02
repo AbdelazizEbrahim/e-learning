@@ -1,4 +1,4 @@
-import Dashboard from "@/components/user components/courseList";
+import Dashboard from "@/components/common components/courseList";
 import Sidebar from "@/components/user components/sideBar";
 
 export default function courseList(){

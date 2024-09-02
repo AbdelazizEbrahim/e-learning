@@ -26,12 +26,12 @@ const NavBar = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('reloadedToken');
     setUserRole(null);
-    router.push('/signin');
+    router.push('/');
   };
 
   const fetchCartCount = async (email) => {
     try {
-      const response = await fetch(`/api/cart?userEmail=${email}`);
+      const response = await fetch(`/api/cart?userEmail=${email}&paymentStatus=Pending`);
       if (!response.ok) {
         setCartCount(0); // Ensure a default value on failure
         return;
@@ -54,7 +54,7 @@ const NavBar = () => {
           const decoded = jwt.decode(token);
           if (decoded && decoded.role) {
             setUserRole(decoded.role);
-            if (decoded.role === 'user' && decoded.email) {
+            if (decoded.role === 'user' || 'instructor' && decoded.email) {
               // Fetch cart notification count
               await fetchCartCount(decoded.email);
             }
@@ -80,8 +80,11 @@ const NavBar = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleCartClick = () => {
-    router.push('/payment'); // Redirect to the payment page
+  const handleCartClickUser = () => {
+    router.push('/user/payment'); // Redirect to the payment page
+  };
+  const handleCartClickInstructor = () => {
+    router.push('/instructor/payment'); // Redirect to the payment page
   };
 
   return (
@@ -99,46 +102,45 @@ const NavBar = () => {
         <div className="flex items-center space-x-4 relative">
           <Link href="/" className="text-white hover:bg-gray-700 px-3 py-2 rounded">Home</Link>
           <Link href="/about" className="text-white hover:bg-gray-700 px-3 py-2 rounded">About</Link>
-          <Link href="/contact" className="text-white hover:bg-gray-700 px-3 py-2 rounded">Contact Us</Link>
+          <Link href="/contact" className="text-white hover:bg-gray-700 px-3 py-2 rounded">Contact</Link>
           <Link href="/courses" className="text-white hover:bg-gray-700 px-3 py-2 rounded">Courses</Link>
 
           {/* Conditional Rendering for Admin */}
           {userRole === 'admin' ? (
-              <div
-                ref={dropdownRef}
-                className="relative"
-                onMouseEnter={() => setDropdownHovered(true)}
-                onMouseLeave={() => setDropdownHovered(false)}
+            <div
+              ref={dropdownRef}
+              className="relative"
+              onMouseEnter={() => setDropdownHovered(true)}
+              onMouseLeave={() => setDropdownHovered(false)}
+            >
+              <button
+                onClick={toggleDropdown}
+                className="text-white hover:bg-gray-700 px-3 py-2 rounded flex items-center transition-colors duration-200"
               >
-                <button
-                  onClick={toggleDropdown}
-                  className="text-white hover:bg-gray-700 px-3 py-2 rounded flex items-center transition-colors duration-200"
-                >
-                  <img
-                    src={'/admin.jpg'}
-                    alt="Admin"
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
-                  <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
+                <img
+                  src={profileImages.admin}
+                  alt="Admin"
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+                <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
 
-                {/* Dropdown Menu */}
-                {(dropdownOpen || dropdownHovered) && (
-                  <div className="absolute right-0 top-full mt-2 w-32 bg-white text-gray-900 rounded-lg shadow-lg z-50">
-                    <Link href="/admin/dashboard" className="block px-3 py-2 hover:bg-gray-100">Dashboard</Link>
-                    <Link href="/admin/myCourses" className="block px-3 py-2 hover:bg-gray-100">My Courses</Link>
-                    <Link href="/admin/manageUsers" className="block px-3 py-2 hover:bg-gray-100">User Management</Link> {/* New Button */}
-                    <Link href="/admin/accountSetting" className="block px-3 py-2 hover:bg-gray-100">Account Settings</Link>
-                    <Link href="/admin/partner" className="block px-3 py-2 hover:bg-gray-100">Partners</Link>
-                    <Link href="/admin/testimony" className="block px-3 py-2 hover:bg-gray-100">Testimonies</Link>
-                    <button onClick={handleLogout} className="w-full text-left px-3 py-2 hover:bg-gray-100">Log Out</button>
-                  </div>
-                )}
-              </div>
-            )
- : userRole === 'user' ? (
+              {/* Dropdown Menu */}
+              {(dropdownOpen || dropdownHovered) && (
+                <div className="absolute right-0 top-full mt-2 w-32 bg-white text-gray-900 rounded-lg shadow-lg z-50">
+                  <Link href="/admin/dashboard" className="block px-3 py-2 hover:bg-gray-100">Dashboard</Link>
+                  <Link href="/admin/myCourses" className="block px-3 py-2 hover:bg-gray-100">My Courses</Link>
+                  <Link href="/admin/manageUsers" className="block px-3 py-2 hover:bg-gray-100">User Management</Link>
+                  <Link href="/admin/accountSetting" className="block px-3 py-2 hover:bg-gray-100">Account Settings</Link>
+                  <Link href="/admin/partner" className="block px-3 py-2 hover:bg-gray-100">Partners</Link>
+                  <Link href="/admin/testimony" className="block px-3 py-2 hover:bg-gray-100">Testimonies</Link>
+                  <button onClick={handleLogout} className="w-full text-left px-3 py-2 hover:bg-gray-100">Log Out</button>
+                </div>
+              )}
+            </div>
+          ) : userRole === 'user' ? (
             <div
               ref={dropdownRef}
               className="relative flex items-center"
@@ -146,7 +148,7 @@ const NavBar = () => {
               onMouseLeave={() => setDropdownHovered(false)}
             >
               <button
-                onClick={handleCartClick}
+                onClick={handleCartClickUser}
                 className="text-white hover:bg-gray-700 px-3 py-2 rounded flex items-center relative"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -161,7 +163,7 @@ const NavBar = () => {
                 className="text-white hover:bg-gray-700 px-3 py-2 rounded flex items-center transition-colors duration-200 ml-4"
               >
                 <img
-                  src={'/user.png'}
+                  src={profileImages.user}
                   alt="User"
                   className="w-8 h-8 rounded-full object-cover"
                 />
@@ -176,7 +178,7 @@ const NavBar = () => {
                   <Link href="/user/myLearning" className="block px-3 py-2 hover:bg-gray-100">My Learning</Link>
                   <Link href="/user/myPurchase" className="block px-3 py-2 hover:bg-gray-100">My Purchase</Link>
                   <Link href="/user/wishlist" className="block px-3 py-2 hover:bg-gray-100">Wishlist</Link>
-                  <Link href="/user/accountSetting" className="block px-3 py-2 hover:bg-gray-100">AccountSetting</Link>
+                  <Link href="/user/accountSetting" className="block px-3 py-2 hover:bg-gray-100">Account Settings</Link>
                   <button onClick={handleLogout} className="w-full text-left px-3 py-2 hover:bg-gray-100">Log Out</button>
                 </div>
               )}
@@ -189,11 +191,22 @@ const NavBar = () => {
               onMouseLeave={() => setDropdownHovered(false)}
             >
               <button
+                onClick={handleCartClickInstructor}
+                className="text-white hover:bg-gray-700 px-3 py-2 rounded flex items-center relative"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 3h2l.344 2M7 13l1.468-7H19a1 1 0 00.993-.883L21 5H7l-.25-1H3m0 0L5 17h14l2-10H7.344M7 20a2 2 0 100-4 2 2 0 000 4zm10 0a2 2 0 100-4 2 2 0 000 4z" />
+                </svg>
+                <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              </button>
+              <button
                 onClick={toggleDropdown}
                 className="text-white hover:bg-gray-700 px-3 py-2 rounded flex items-center transition-colors duration-200"
               >
                 <img
-                  src={'/instructor.jpg'}
+                  src={profileImages.instructor}
                   alt="Instructor"
                   className="w-8 h-8 rounded-full object-cover"
                 />
@@ -206,15 +219,15 @@ const NavBar = () => {
               {(dropdownOpen || dropdownHovered) && (
                 <div className="absolute right-0 top-full mt-2 w-32 bg-white text-gray-900 rounded-lg shadow-lg z-50">
                   <Link href="/instructor/myCourses" className="block px-3 py-2 hover:bg-gray-100">My Courses</Link>
-                  <Link href="/instructor/myLearning" className="block px-3 py-2 hover:bg-gray-100">My Learning</Link>
-                  <Link href="/instructor/wishlist" className="block px-3 py-2 hover:bg-gray-100">Wishlist</Link>
+                  <Link href="/user/myLearning" className="block px-3 py-2 hover:bg-gray-100">My Learning</Link>
+                  <Link href="/user/wishlist" className="block px-3 py-2 hover:bg-gray-100">Wishlist</Link>
                   <Link href="/instructor/accountSetting" className="block px-3 py-2 hover:bg-gray-100">Account Settings</Link>
                   <button onClick={handleLogout} className="w-full text-left px-3 py-2 hover:bg-gray-100">Log Out</button>
                 </div>
               )}
             </div>
           ) : (
-            <Link href="/signin" className="text-white hover:bg-gray-700 px-3 py-2 rounded">Sign In / Register</Link>
+            <Link href="/signin" className="text-white hover:bg-gray-700 px-3 py-2 rounded">Sign In/Register</Link>
           )}
         </div>
       </div>

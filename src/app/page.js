@@ -12,24 +12,20 @@ export default function Home() {
   });
   const [bestCourses, setBestCourses] = useState([]);
   const [fetchingBestCourses, setFetchingBestCourses] = useState(true);
-  const [instructorAdvices, setInstructorAdvices] = useState([]);
-  const [currentInstructorIndex, setCurrentInstructorIndex] = useState(0);
   const [partnerships, setPartnerships] = useState([]);
-  const [currentPartnershipIndex, setCurrentPartnershipIndex] = useState(0);
   const [testimonies, setTestimonies] = useState([]);
-  const [currentTestimonyIndex, setCurrentTestimonyIndex] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
     const fetchBestCourses = async () => {
       setFetchingBestCourses(true);
       try {
-        const response = await fetch('/api/course');
+        const response = await fetch('/api/course?isHome=true');
         if (!response.ok) {
           throw new Error('Failed to fetch best courses');
         }
         const data = await response.json();
-        setBestCourses(data.slice(0, 3)); // Limit to the top 3 courses
+        setBestCourses(data);
       } catch (error) {
         console.error('Error fetching best courses:', error);
       } finally {
@@ -37,22 +33,9 @@ export default function Home() {
       }
     };
 
-    const fetchInstructorAdvices = async () => {
-      try {
-        const response = await fetch('/api/instructor-advices');
-        if (!response.ok) {
-          throw new Error('Failed to fetch instructor advices');
-        }
-        const data = await response.json();
-        setInstructorAdvices(data);
-      } catch (error) {
-        console.error('Error fetching instructor advices:', error);
-      }
-    };
-
     const fetchPartnerships = async () => {
       try {
-        const response = await fetch('/api/partnerships');
+        const response = await fetch('/api/partners?sort=-createdAt&limit=5');
         if (!response.ok) {
           throw new Error('Failed to fetch partnerships');
         }
@@ -65,7 +48,7 @@ export default function Home() {
 
     const fetchTestimonies = async () => {
       try {
-        const response = await fetch('/api/testimonies');
+        const response = await fetch('/api/testimonies?sort=-createdAt&limit=5');
         if (!response.ok) {
           throw new Error('Failed to fetch testimonies');
         }
@@ -77,37 +60,21 @@ export default function Home() {
     };
 
     fetchBestCourses();
-    fetchInstructorAdvices();
     fetchPartnerships();
     fetchTestimonies();
   }, []);
 
-  const handleEnroll = async (courseCode) => {
-    const token = localStorage.getItem('token'); // Check token from local storage
+  const handleEnroll = (courseCode) => {
+    const token = localStorage.getItem('authToken');
     if (token) {
-      router.push(`/signin?courseCode=${encodeURIComponent(courseCode)}`);
+      // Redirect to the enroll page with the course code as a query parameter
+      router.push(`/user/enroll?courseCode=${encodeURIComponent(courseCode)}`);
     } else {
+      // Redirect to the sign-in page
       router.push('/signin');
     }
   };
-
-  const handleInstructorNav = (direction) => {
-    setCurrentInstructorIndex((prev) => 
-      (prev + direction + instructorAdvices.length) % instructorAdvices.length
-    );
-  };
-
-  const handlePartnershipNav = (direction) => {
-    setCurrentPartnershipIndex((prev) => 
-      (prev + direction + partnerships.length) % partnerships.length
-    );
-  };
-
-  const handleTestimonyNav = (direction) => {
-    setCurrentTestimonyIndex((prev) => 
-      (prev + direction + testimonies.length) % testimonies.length
-    );
-  };
+  
 
   return (
     <div className='relative w-screen h-screen'>
@@ -116,7 +83,7 @@ export default function Home() {
         <p className='text-lg mb-8 text-black'>Choose an action below to get started.</p>
 
         {/* Best Courses Section */}
-        <hr className='my-8 border-gray-600' />
+        <hr className='my-8 border-gray-600 border-2' />
         <h2 className='text-2xl font-semibold mb-4 text-black'>Best Courses</h2>
         <div className='flex flex-wrap gap-4'>
           {fetchingBestCourses ? (
@@ -125,15 +92,15 @@ export default function Home() {
             bestCourses.map((course) => (
               <div
                 key={course._id}
-                className='bg-gray-800 p-4 rounded-lg shadow-lg flex-shrink-0 w-72 mb-5'
+                className='bg-gray-800 p-6 rounded-lg shadow-lg flex-shrink-0 w-80 mb-5'
               >
                 <div className='relative mb-4'>
                   <Image
-                    src={'/image.jpeg'} // Use course imageUrl or fallback to default image
+                    src={'/image.jpeg'}
                     alt={course.courseTitle}
-                    width={320} // Adjust width for single row
-                    height={180} // Adjust height for single row
-                    className='w-full h-32 object-cover rounded-md'
+                    width={320}
+                    height={180}
+                    className='w-full h-48 object-cover rounded-md'
                   />
                 </div>
                 <h3 className='text-gray-400 mb-2 font-black'>{course.courseTitle}</h3>
@@ -154,53 +121,45 @@ export default function Home() {
           )}
         </div>
 
-
         {/* Partnership Section */}
-        <hr className='my-8 border-gray-600' />
-        <h2 className='text-2xl font-semibold mb-4 text-black'>Our Partners</h2>
-        <div className='relative flex items-center'>
-          <button
-            onClick={() => handlePartnershipNav(-1)}
-            className='absolute left-0 bg-gray-700 text-white p-2 rounded-full'
-          >
-            &lt;
-          </button>
-          {partnerships.length > 0 && (
-            <div className='flex flex-col items-center p-4 bg-gray-800 rounded-lg shadow-lg w-72'>
-              <h3 className='text-gray-400 mb-2 font-bold'>{partnerships[currentPartnershipIndex].companyName}</h3>
-              <p className='text-gray-400'>{partnerships[currentPartnershipIndex].work}</p>
+        <hr className='my-8 border-gray-600 border-2' />
+        <h2 className='text-2xl font-semibold mb-4 text-black'>Partners</h2>
+        <div className='flex justify-center flex-wrap gap-6'>
+          {partnerships.map((partner) => (
+            <div key={partner._id} className=' transition-timing-function: linear flex flex-col items-center p-6 bg-gray-800 rounded-lg shadow-lg w-56'>
+              <Image
+                src={partner.imageUrl || 'image.jpg'}
+                alt={partner.companyName}
+                width={80}
+                height={80}
+                className='w-16 h-16 object-cover rounded-full mb-2'
+              />
+              <p className='text-gray-400'>{partner.description}</p>
             </div>
-          )}
-          <button
-            onClick={() => handlePartnershipNav(1)}
-            className='absolute right-0 bg-gray-700 text-white p-2 rounded-full'
-          >
-            &gt;
-          </button>
+          ))}
         </div>
 
         {/* Testimony Section */}
-        <hr className='my-8 border-gray-600' />
-        <h2 className='text-2xl font-semibold mb-4 text-black'>What Our Users Say</h2>
-        <div className='relative flex items-center'>
-          <button
-            onClick={() => handleTestimonyNav(-1)}
-            className='absolute left-0 bg-gray-700 text-white p-2 rounded-full'
-          >
-            &lt;
-          </button>
-          {testimonies.length > 0 && (
-            <div className='flex flex-col items-center p-4 bg-gray-800 rounded-lg shadow-lg w-72'>
-              <p className='text-gray-400'>{testimonies[currentTestimonyIndex].testimony}</p>
-              <h3 className='text-gray-400 mt-2 font-bold'>{testimonies[currentTestimonyIndex].name}</h3>
+        <hr className='my-8 border-gray-600 border-2' />
+        <h2 className='text-2xl font-semibold mb-5 text-black'>Testimonies</h2>
+        <div className='flex justify-center flex-wrap gap-6'>
+          {testimonies.map((testimony) => (
+            <div key={testimony._id} className='flex flex-col items-center p-6 bg-gray-800 rounded-lg shadow-lg w-56'>
+              <div className='flex-shrink-0 mr-4'>
+                <Image
+                  src={testimony.imageUrl || '/default-testimony-image.jpg'}
+                  alt={testimony.Name}
+                  width={80}
+                  height={80}
+                  className='w-20 h-20 object-cover rounded-full'
+                />
+              </div>
+              <div className='flex flex-col'>
+                <p className='text-gray-400 mb-1 font-bold'>{testimony.Name}</p>
+                <p className='text-gray-400'>{testimony.testimony}</p>
+              </div>
             </div>
-          )}
-          <button
-            onClick={() => handleTestimonyNav(1)}
-            className='absolute right-0 bg-gray-700 text-white p-2 rounded-full'
-          >
-            &gt;
-          </button>
+          ))}
         </div>
       </main>
     </div>

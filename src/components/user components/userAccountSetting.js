@@ -38,14 +38,15 @@ const AccountSettings = () => {
               throw new Error('Failed to fetch profile data');
             }
             const data = await response.json();
+            console.log("data: ", data)
             setFormData({
-              fullName: data.data[0].fullName,
+              fullName: data[0].fullName,
               email: email, // Email remains unchanged
-              studentId: data.data[0].studentId,
-              age: data.data[0].age,
-              gender: data.data[0].gender,
-              city: data.data[0].city,
-              biography: data.data[0].biography
+              studentId: data[0].studentId,
+              age: data[0].age,
+              gender: data[0].gender,
+              city: data[0].city,
+              biography: data[0].biography
             });
           }
         } catch (error) {

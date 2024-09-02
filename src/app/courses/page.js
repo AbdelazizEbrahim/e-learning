@@ -37,8 +37,14 @@ export default function Dashboard() {
   const handleEnroll = async (courseCode) => {
     setEnrollLoading((prev) => ({ ...prev, [courseCode]: true }));
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      router.push(`/signin?courseCode=${encodeURIComponent(courseCode)}`);
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        // Token exists, redirect to enroll page
+        router.push(`/user/enroll?courseCode=${encodeURIComponent(courseCode)}`);
+      } else {
+        // No token, redirect to sign-in page
+        router.push(`/signin?courseCode=${encodeURIComponent(courseCode)}`);
+      }
     } catch (error) {
       alert('An error occurred while redirecting.');
     } finally {

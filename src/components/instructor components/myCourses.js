@@ -10,8 +10,10 @@ const CourseList = () => {
     const [loading, setLoading] = useState(true);
     const [addLoading, setAddLoading] = useState(false);
     const [editCourse, setEditCourse] = useState(null);
+    const [dropdownOpen, setDropdownOpen] = useState(null);
     const [instructorName, setInstructorName] = useState('');
     const formRef = useRef(null);
+    const dropdownRef = useRef(null);
 
     useEffect(() => {
         const fetchInstructorAndCourses = async () => {
@@ -76,9 +78,12 @@ const CourseList = () => {
                 setIsAddOpen(false);
                 setEditCourse(null);
             }
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setDropdownOpen(null);
+            }
         };
 
-        if (isAddOpen || editCourse) {
+        if (isAddOpen || editCourse || dropdownOpen !== null) {
             document.addEventListener('mousedown', handleClickOutside);
         } else {
             document.removeEventListener('mousedown', handleClickOutside);
@@ -87,7 +92,7 @@ const CourseList = () => {
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [isAddOpen, editCourse]);
+    }, [isAddOpen, editCourse, dropdownOpen]);
 
     const openAddForm = () => {
         setIsAddOpen(true);
@@ -147,7 +152,7 @@ const CourseList = () => {
                 },
                 body: JSON.stringify({
                     courseTitle: courseTitle.value,
-                    courseCode: editCourse.courseCode, // Use the existing course code
+                    courseCode: editCourse.courseCode,
                     imageUrl: imageUrl.value,
                     description: description.value,
                     price: price.value,
@@ -177,7 +182,6 @@ const CourseList = () => {
             setAddLoading(false);
         }
     };
-    
 
     const handleDelete = async (courseCode) => {
         if (window.confirm("Are you sure you want to delete this course?")) {
@@ -207,7 +211,6 @@ const CourseList = () => {
             }
         }
     };
-    
 
     return (
         <div className="p-4 mr-72 ml-0">
@@ -227,7 +230,35 @@ const CourseList = () => {
                         <p className="text-white text-center">Loading courses...</p>
                     ) : (
                         courses.map((course) => (
-                            <div key={course.courseCode} className="bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col transition-transform duration-300 transform hover:scale-105">
+                            <div key={course.courseCode} className="relative bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col transition-transform duration-300 transform hover:scale-105">
+                                <div className="absolute top-2 right-2">
+                                <button
+                                    onClick={() => setDropdownOpen(dropdownOpen === course.courseCode ? null : course.courseCode)}
+                                    className="fixed top-4 right-4 bg-gray-700 text-white py-1 px-3 rounded-full hover:bg-gray-600 transition-colors duration-300 z-50"
+                                >
+                                    &#x22EE; {/* 3 dots vertical */}
+                                </button>
+
+                                    {dropdownOpen === course.courseCode && (
+                                        <div ref={dropdownRef} className="absolute right-0 mt-2 w-32 bg-white text-black shadow-lg rounded-md z-10">
+                                            <button
+                                                onClick={() => {
+                                                    setEditCourse(course);
+                                                    setIsAddOpen(true);
+                                                }}
+                                                className="block w-full text-left px-4 py-2 hover:bg-gray-200"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(course.courseCode)}
+                                                className="block w-full text-left px-4 py-2 hover:bg-gray-200"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                                 <div className="relative w-full h-32 mb-4">
                                     <Image
                                         src={'/image.jpeg'}
@@ -243,25 +274,7 @@ const CourseList = () => {
                                 <p className="text-gray-400 mb-4">Overview: {course.overview}</p>
                                 <p className="text-gray-400 mb-4">Requirements: {course.requirements}</p>
                                 <p className="text-gray-400 mb-4">What We Will Learn: {course.whatWeWillLearn}</p>
-                                <p className="text-gray-400 mb-4">Instructor Name: {course.instructor}</p>
                                 <p className="text-gray-400 mb-2">Description: {course.description}</p>
-                                <div className="mt-auto flex space-x-2">
-                                    <button
-                                        onClick={() => {
-                                            setEditCourse(course);
-                                            setIsAddOpen(true);
-                                        }}
-                                        className="bg-blue-500 text-white py-1 px-2 rounded hover:bg-blue-400 transition-colors duration-300"
-                                    >
-                                        Edit
-                                    </button>
-                                    <button
-                                        onClick={() => handleDelete(course.courseCode)}
-                                        className="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-400 transition-colors duration-300"
-                                    >
-                                        Delete
-                                    </button>
-                                </div>
                             </div>
                         ))
                     )}
