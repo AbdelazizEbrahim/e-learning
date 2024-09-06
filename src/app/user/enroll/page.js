@@ -1,4 +1,4 @@
-import EnrollStudent from "@/components/user components/enroll";
+import EnrollStudent from "@/components/common components/enroll";
 
 const Register = () => {
   return (

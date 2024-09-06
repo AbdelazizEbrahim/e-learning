@@ -75,10 +75,9 @@ const enrollmentSchema = new mongoose.Schema({
   },
 }, {
   timestamps: false, // Set to true if you want automatic createdAt and updatedAt fields
-  indexes: [
-    { fields: { courseCode: 1, userEmail: 1 } }, 
-  ],
 });
+enrollmentSchema.index({ userEmail: 1, courseCode: 1 }, { unique: true });
+
 
 // Pre-save middleware to handle orderNumber and paymentId generation
 enrollmentSchema.pre('save', async function(next) {

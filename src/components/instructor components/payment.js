@@ -14,40 +14,49 @@ const PaymentPage = () => {
         city: '',
     });
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     useEffect(() => {
         const fetchData = async () => {
             let email = '';
             const token = localStorage.getItem("authToken");
-            const decoded = jwt.decode(token);
-            if (decoded && decoded.email) {
-                email = decoded.email;
+            if (token) {
+                try {
+                    const decoded = jwt.decode(token);
+                    if (decoded && decoded.email) {
+                        email = decoded.email;
+                    }
+                } catch (error) {
+                    console.error('Error decoding token:', error);
+                }
             }
 
             if (email) {
                 try {
-                    // Fetch courses with pending or failed payment status
+                    // Fetch courses with pending payment status
                     const response = await fetch(`/api/cart?userEmail=${email}&paymentStatus=Pending`);
+                    if (!response.ok) throw new Error('Failed to fetch courses');
                     const data = await response.json();
-                    console.log('data', data);
+                    console.log("data: ", data);
                     setCourses(data);
 
                     // Calculate total price
                     const total = data.reduce((sum, course) => sum + course.price, 0);
                     setTotalPrice(total);
-
                 } catch (error) {
                     console.error('Error fetching courses:', error);
+                    setError('Error fetching courses.');
                 }
 
                 try {
-                    // Fetch instructor profile
+                    // Fetch user profile
                     const profileResponse = await fetch(`/api/instructorProfile?email=${email}`);
+                    if (!profileResponse.ok) throw new Error('Failed to fetch profile');
                     const profileData = await profileResponse.json();
-                    console.log("data:", profileData)
                     setUserProfile(profileData.data);
                 } catch (error) {
-                    console.error('Error fetching instructor profile:', error);
+                    console.error('Error fetching profile:', error);
+                    setError('Error fetching profile.');
                 }
             }
         };
@@ -67,24 +76,20 @@ const PaymentPage = () => {
                     },
                 });
 
-                console.log("data: ", response.json());
-
-                if (!response.ok) {
-                    throw new Error('Failed to delete course');
-                }
-
+                if (!response.ok) throw new Error('Failed to delete course');
+                
                 setCourses(courses.filter(course => course.courseCode !== courseCode));
                 const total = courses.reduce((sum, course) => sum + course.price, 0);
                 setTotalPrice(total);
-
             } catch (error) {
                 console.error('Error deleting course:', error);
+                setError('Error deleting course.');
             }
         }
     };
 
     const handlePayment = async () => {
-        setLoading(true); // Start loading
+        setLoading(true);
 
         const paymentData = {
             totalPrice: totalPrice.toFixed(2),
@@ -105,14 +110,16 @@ const PaymentPage = () => {
             const data = await response.json();
 
             if (data.status === 'success') {
-                window.location.href = data.data.checkout_url; 
+                window.location.href = data.data.checkout_url;
             } else {
                 console.error('Payment initiation failed:', data.message);
+                setError('Payment initiation failed.');
             }
         } catch (error) {
             console.error('Error during payment initiation:', error);
+            setError('Error during payment initiation.');
         } finally {
-            setLoading(false); // Stop loading
+            setLoading(false);
         }
     };
 
@@ -121,12 +128,13 @@ const PaymentPage = () => {
             {/* Left card: List of courses */}
             <div className="bg-white p-6 rounded-lg shadow-lg ml-12">
                 <h2 className="text-2xl font-bold mb-4">Your Courses</h2>
+                {error && <p className="text-red-500">{error}</p>}
                 {courses.length > 0 ? (
                     <ul>
                         {courses.map((course) => (
                             <li key={course.id} className="mb-4 p-4 border-b border-gray-300 flex items-center">
                                 <img
-                                    src={'/image.jpeg'}
+                                    src={course.imageUrl}
                                     alt={course.courseTitle}
                                     className="w-16 h-16 rounded-full mr-4 object-cover"
                                 />
@@ -154,7 +162,7 @@ const PaymentPage = () => {
                 <button
                     onClick={handlePayment}
                     className={`mt-4 bg-green-500 text-white py-2 px-4 rounded hover:bg-green-400 transition-colors duration-300 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    disabled={loading} // Disable button when loading
+                    disabled={loading} 
                 >
                     {loading ? 'Processing...' : 'Pay Now'}
                 </button>

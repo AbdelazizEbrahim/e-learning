@@ -1,6 +1,8 @@
 'use client';
 
+import { FaCamera, FaPlus } from 'react-icons/fa';
 import { useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
 import jwt from 'jsonwebtoken';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
@@ -20,6 +22,7 @@ const AccountSettings = () => {
     newPassword: ''
   });
   const [loading, setLoading] = useState(false);
+  const [profileImage, setProfileImage] = useState(null); 
   const [error, setError] = useState(null);
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
@@ -31,6 +34,8 @@ const AccountSettings = () => {
         try {
           const decoded = jwt.decode(token);
           const email = decoded?.email;
+
+          fetchProfileImage(email);
 
           if (email) {
             const response = await fetch(`/api/userProfile?email=${email}`);
@@ -78,6 +83,111 @@ const AccountSettings = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  const fetchProfileImage = async (email) => {
+    console.log("email to post: " , email)
+    try {
+      const response = await fetch(`/api/photo?email=${email}`);
+      console.log("resfetch: ", response)
+      if (response.ok) {
+        const data = await response.json();
+        console.log("datafetch: ", data);
+        setProfileImage(data.data?.imageUrl || null);
+      }
+    } catch (error) {
+      console.error('Error fetching profile image:', error);
+    }
+  };
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('authToken');
+      const decoded = jwtDecode(token);
+      const email = decoded.email;
+      console.log("email:", email);
+      const response = await fetch(`/api/photo?email=${email}`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      console.log("resp1: ", response)
+      if (response.ok) {
+        const data = await response.json();
+        console.log("image da: ", data);
+        setProfileImage(data.data.imageUrl); // Update profile image URL after upload
+      } else {
+        console.error('Image upload failed');
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleImageUpdate = async (event) => {
+    console.log('Image update initiated');
+  
+    const file = event.target.files[0];
+    console.log('Selected file:', file);
+  
+    if (!file) {
+      console.log('No file selected');
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append('avatar', file);
+    console.log('FormData created with file');
+  
+    try {
+      setLoading(true);
+      console.log('Loading state set to true');
+  
+      const token = localStorage.getItem('authToken');
+      console.log('Retrieved token from localStorage:', token);
+  
+      const decoded = jwtDecode(token);
+      console.log('Decoded token:', decoded);
+  
+      const email = decoded.email;
+      console.log('Extracted email from token:', email);
+  
+      const response = await fetch(`/api/photo?email=${email}`, {
+        method: 'PUT',
+        body: formData,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      console.log('Fetch request sent to API');
+  
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Image update successful, response data:', data);
+        setProfileImage(data.imageUrl);
+        console.log('Profile image state updated');
+      } else {
+        console.error('Image update failed, response status:', response.status);
+      }
+    } catch (error) {
+      console.error('Error updating image:', error);
+    } finally {
+      setLoading(false);
+      console.log('Loading state set to false');
+    }
+  };
+  
 
   const handleButtonClick = (formName) => {
     const token = localStorage.getItem('authToken');
@@ -231,6 +341,26 @@ const AccountSettings = () => {
             </h2>
 
             {activeForm === 'viewProfile' && (
+              <div>
+                <div className="text-center mb-6">
+                  {profileImage ? (
+                    <img
+                      src={profileImage}
+                      alt="Profile"
+                      className="w-24 h-24 rounded-full mx-auto"
+                    />
+                  ) : (
+                    <label className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center mx-auto cursor-pointer">
+                      <FaCamera className="text-gray-500" size={30} />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageUpload}
+                      />
+                    </label>
+                  )}
+                </div>              
               <div className="space-y-4">
                 <p><strong>Full Name:</strong> {formData.fullName}</p>
                 <p><strong>Email:</strong> {formData.email}</p>
@@ -240,9 +370,48 @@ const AccountSettings = () => {
                 <p><strong>City:</strong> {formData.city}</p>
                 <p><strong>Biography:</strong> {formData.biography}</p>
               </div>
+              </div>
             )}
 
             {activeForm === 'updateProfile' && (
+              <div>
+              <div>
+                <div>
+        <div className="text-center mb-6 relative">
+          {profileImage ? (
+            <img
+              src={profileImage}
+              alt="Profile"
+              className="w-24 h-24 rounded-full mx-auto"
+            />
+          ) : (
+            <label className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center mx-auto cursor-pointer">
+              <FaCamera className="text-gray-500" size={30} />
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpdate}
+              />
+            </label>
+          )}
+          {/* Plus button for updating the profile image */}
+          <label
+            htmlFor="file-upload"
+            className="absolute bottom-0 right-0 mb-1 mr-1 bg-white rounded-full p-1 shadow-md cursor-pointer"
+          >
+            <FaPlus size={20} className="text-gray-700" />
+            <input
+              id="file-upload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageUpdate}
+            />
+          </label>
+        </div>
+      </div>
+              </div>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <label className="block">
                   <span className="text-gray-700">Full Name</span>
@@ -254,27 +423,6 @@ const AccountSettings = () => {
                     required
                   />
                 </label>
-                {/* <label className="block">
-                  <span className="text-gray-700">Email</span>
-                  <Input
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    placeholder="Email from local storage"
-                    required
-                    disabled
-                  />
-                </label> */}
-                {/* <label className="block">
-                  <span className="text-gray-700">Student ID</span>
-                  <Input
-                    name="studentId"
-                    value={formData.studentId}
-                    // onChange={handleChange}
-                    placeholder="Enter student ID"
-                    required
-                  />
-                </label> */}
                 <label className="block">
                   <span className="text-gray-700">Age</span>
                   <Input
@@ -326,6 +474,7 @@ const AccountSettings = () => {
                   </Button>
                 </div>
               </form>
+              </div>
             )}
 
             {activeForm === 'createAccount' && (

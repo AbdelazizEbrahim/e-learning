@@ -47,6 +47,26 @@ const NavBar = () => {
   };
 
   useEffect(() => {
+    const fetchProfileImage = async (email, role) => {
+      try {
+        const response = await fetch(`/api/photo?email=${email}`);
+        if (!response.ok) {
+          console.error('Error fetching profile image');
+          return;
+        }
+        const data = await response.json();
+        // console.log("data: ", data.data)
+        if (role === 'admin') {
+          setProfileImages(prevState => ({ ...prevState, admin: data.data.imageUrl }));
+        } else if (role === 'user') {
+          setProfileImages(prevState => ({ ...prevState, user: data.data.imageUrl }));
+        } else if (role === 'instructor') {
+          setProfileImages(prevState => ({ ...prevState, instructor: data.data.imageUrl }));
+        }
+      } catch (error) {
+        console.error('Error fetching profile image:', error);
+      }
+    };
     const fetchUserRole = async () => {
       const token = localStorage.getItem('authToken');
       if (token) {
@@ -57,6 +77,7 @@ const NavBar = () => {
             if (decoded.role === 'user' || 'instructor' && decoded.email) {
               // Fetch cart notification count
               await fetchCartCount(decoded.email);
+              await fetchProfileImage(decoded.email, decoded.role);
             }
           }
         } catch (error) {
@@ -141,13 +162,8 @@ const NavBar = () => {
               )}
             </div>
           ) : userRole === 'user' ? (
-            <div
-              ref={dropdownRef}
-              className="relative flex items-center"
-              onMouseEnter={() => setDropdownHovered(true)}
-              onMouseLeave={() => setDropdownHovered(false)}
-            >
-              <button
+            <div className="relative flex items-center">
+               <button
                 onClick={handleCartClickUser}
                 className="text-white hover:bg-gray-700 px-3 py-2 rounded flex items-center relative"
               >
@@ -158,6 +174,12 @@ const NavBar = () => {
                   {cartCount}
                 </span>
               </button>
+            <div
+              ref={dropdownRef}
+              className="relative flex items-center"
+              onMouseEnter={() => setDropdownHovered(true)}
+              onMouseLeave={() => setDropdownHovered(false)}
+            >
               <button
                 onClick={toggleDropdown}
                 className="text-white hover:bg-gray-700 px-3 py-2 rounded flex items-center transition-colors duration-200 ml-4"
@@ -183,14 +205,10 @@ const NavBar = () => {
                 </div>
               )}
             </div>
+            </div>
           ) : userRole === 'instructor' ? (
-            <div
-              ref={dropdownRef}
-              className="relative flex items-center"
-              onMouseEnter={() => setDropdownHovered(true)}
-              onMouseLeave={() => setDropdownHovered(false)}
-            >
-              <button
+            <div className="relative flex items-center">
+               <button
                 onClick={handleCartClickInstructor}
                 className="text-white hover:bg-gray-700 px-3 py-2 rounded flex items-center relative"
               >
@@ -201,6 +219,12 @@ const NavBar = () => {
                   {cartCount}
                 </span>
               </button>
+              <div
+              ref={dropdownRef}
+              className="relative flex items-center"
+              onMouseEnter={() => setDropdownHovered(true)}
+              onMouseLeave={() => setDropdownHovered(false)}
+            >
               <button
                 onClick={toggleDropdown}
                 className="text-white hover:bg-gray-700 px-3 py-2 rounded flex items-center transition-colors duration-200"
@@ -219,13 +243,15 @@ const NavBar = () => {
               {(dropdownOpen || dropdownHovered) && (
                 <div className="absolute right-0 top-full mt-2 w-32 bg-white text-gray-900 rounded-lg shadow-lg z-50">
                   <Link href="/instructor/myCourses" className="block px-3 py-2 hover:bg-gray-100">My Courses</Link>
-                  <Link href="/user/myLearning" className="block px-3 py-2 hover:bg-gray-100">My Learning</Link>
-                  <Link href="/user/wishlist" className="block px-3 py-2 hover:bg-gray-100">Wishlist</Link>
+                  <Link href="/instructor/myLearning" className="block px-3 py-2 hover:bg-gray-100">My Learning</Link>
+                  <Link href="/instructor/wishlist" className="block px-3 py-2 hover:bg-gray-100">Wishlist</Link>
                   <Link href="/instructor/accountSetting" className="block px-3 py-2 hover:bg-gray-100">Account Settings</Link>
                   <button onClick={handleLogout} className="w-full text-left px-3 py-2 hover:bg-gray-100">Log Out</button>
                 </div>
               )}
             </div>
+            </div>
+
           ) : (
             <Link href="/signin" className="text-white hover:bg-gray-700 px-3 py-2 rounded">Sign In/Register</Link>
           )}

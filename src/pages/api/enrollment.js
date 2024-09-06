@@ -115,13 +115,8 @@ export default async function handler(req, res) {
             // Fetch enrollments based on query
             const enrollments = await Enrollment.find(query);
 
-            if (enrollments.length > 0) {
-                console.log("Enrollments found:", enrollments);
-                return res.status(200).json({ message: 'Enrollments retrieved successfully', data: enrollments });
-            } else {
-                console.log("No enrollments found for the given query.");
-                return res.status(404).json({ message: 'No enrollments found' });
-            }
+            return res.status(200).json(enrollments.length ? enrollments : { message: 'No enrollment entries found' });
+
         } catch (error) {
             console.error("Error fetching enrollments:", error);
             return res.status(500).json({ message: 'Failed to fetch enrollments', error: error.message });

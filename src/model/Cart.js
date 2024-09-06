@@ -36,6 +36,10 @@ const cartSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    imageUrl: {
+        type: String,
+        required: true,
+    },
     instructor: {
         type: String,
         required: true,

@@ -4,6 +4,9 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import jwt from 'jsonwebtoken';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart as solidHeart } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as regularHeart } from '@fortawesome/free-regular-svg-icons';
 
 const Dashboard = () => {
   const [courses, setCourses] = useState([]);
@@ -48,16 +51,14 @@ const Dashboard = () => {
           email = decoded?.email || '';
         }
 
-        console.log("starting....." )
         const enrollmentResponse = await fetch(`/api/enrollment?userEmail=${email}&paymentStatus=PAID`);
         if (!enrollmentResponse.ok) {
           console.log('Failed to fetch enrollment data');
         }
-        console.log("enrollment res: ", enrollmentResponse)
 
         const enrolled = await enrollmentResponse.json();
-        const enrolledCourses = enrolled.data;
-        console.log("enrolled: ", enrolledCourses);
+        console.log("enrolled: ", enrolled)
+        const enrolledCourses = enrolled;
 
         // Fetch courses data
         const coursesResponse = await fetch('/api/course');
@@ -65,16 +66,11 @@ const Dashboard = () => {
           console.log('Failed to fetch courses');
         }
         const allCourses = await coursesResponse.json();
-        console.log("all: ", allCourses);
 
         let filteredCourses;
-        console.log("enrolled: ", enrolledCourses)
-
         if (!enrolledCourses) {
-          // If enrollment data is empty, render all courses
           filteredCourses = allCourses;
         } else {
-          // Filter courses that are not in enrollment
           const enrolledCourseCodes = new Set(enrolledCourses.map(course => course.courseCode));
           filteredCourses = allCourses.filter(course => !enrolledCourseCodes.has(course.courseCode));
         }
@@ -103,7 +99,7 @@ const Dashboard = () => {
     setEnrollLoading((prev) => ({ ...prev, [courseCode]: true }));
     try {
       await new Promise(resolve => setTimeout(resolve, 1000));
-      router.push(`/user/enroll?courseCode=${encodeURIComponent(courseCode)}`);
+      router.push(`/enroll?courseCode=${encodeURIComponent(courseCode)}`);
     } catch (error) {
       console.error('Error occurred while redirecting:', error);
     } finally {
@@ -137,7 +133,6 @@ const Dashboard = () => {
     const courseCode = course.courseCode;
 
     try {
-      // Check if the course is in the wishlist
       if (isCourseInWishlist(courseCode)) {
         // Remove course from wishlist
         const response = await fetch(`/api/wishlist`, {
@@ -152,7 +147,6 @@ const Dashboard = () => {
           throw new Error('Failed to remove course from wishlist');
         }
 
-        // Refresh wishlist after removal
         fetchWishlist(email);
 
       } else {
@@ -180,7 +174,6 @@ const Dashboard = () => {
           throw new Error('Failed to add course to wishlist');
         }
 
-        // Refresh wishlist after adding
         fetchWishlist(email);
       }
     } catch (error) {
@@ -206,13 +199,19 @@ const Dashboard = () => {
             approvedCourses.map((course) => (
               <div key={course._id} className="bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col relative">
                 <div className="relative mb-4">
-                <Image
-                  src={ '/image.jpeg'}
-                  alt={course.courseTitle}
-                  width={400}
-                  height={160} // Adjust height as per the aspect ratio
-                  className="object-cover rounded-md w-full h-40"
-                />
+                  <Image
+                    src={course.imageUrl}
+                    alt={course.courseTitle}
+                    width={400}
+                    height={160} // Adjust height as per the aspect ratio
+                    className="object-cover rounded-md w-full h-40"
+                  />
+                  <button
+                    onClick={() => toggleWishlist(course)}
+                    className="absolute top-2 right-2 text-red-500 hover:text-red-300 transition-colors duration-300"
+                  >
+                    <FontAwesomeIcon icon={isCourseInWishlist(course.courseCode) ? solidHeart : regularHeart} size="lg" />
+                  </button>
                 </div>
                 <h2 className="text-xl font-semibold mb-2">Course Name: {course.courseTitle}</h2>
                 <p className="text-gray-400 mb-2">Course Code: {course.courseCode}</p>

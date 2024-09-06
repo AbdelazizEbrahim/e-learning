@@ -1,4 +1,4 @@
-import Wishlist from "@/components/instructor components/wishlist";
+import Wishlist from "@/components/common components/wishlist";
 import Sidebar from "@/components/user components/sideBar";
 
 export default function courseList(){

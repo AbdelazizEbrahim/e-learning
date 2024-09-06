@@ -1,116 +1,97 @@
-import NextConnect from 'next-connect';
-import multer from 'multer';
-import GridFsStorage from 'multer-gridfs-storage';
-import mongoose from 'mongoose';
-import Grid from 'gridfs-stream';
 
-// MongoDB URI
-const MONGODB_URI = 'mongodb://localhost:27017/mydatabase';
 
-let gfs;
+import formidable from 'formidable';
+import { MongoClient, GridFSBucket } from 'mongodb';
+import { Readable } from 'stream';
+import fs from 'fs';
+import path from 'path';
 
-const connectToDatabase = async () => {
-  console.log('Connecting to MongoDB...');
-  if (mongoose.connection.readyState) {
-    console.log('Already connected to MongoDB.');
-    return;
-  }
-  try {
-    await mongoose.connect(MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    const conn = mongoose.connection;
-    gfs = Grid(conn.db, mongoose.mongo);
-    gfs.collection('uploads');
-    console.log('MongoDB connected and GridFS initialized.');
-  } catch (error) {
-    console.error('Failed to connect to MongoDB:', error);
-  }
+export const config = {
+  api: {
+    bodyParser: false, // Disable body parsing by Next.js
+  },
 };
 
-const storage = new GridFsStorage({
-  url: MONGODB_URI,
-  file: (req, file) => {
-    console.log('Received file for upload:', file.originalname);
-    return {
-      filename: file.originalname,
-      bucketName: 'uploads',
-    };
-  },
-});
+// MongoDB connection and GridFS bucket setup
+async function gridConnect() {
+  console.log('Connecting to MongoDB...');
+  const client = await MongoClient.connect(process.env.DATABASE_URI);
+  console.log('Connected to MongoDB.');
+  const db = client.db(process.env.MONGODB_DB);
+  const bucket = new GridFSBucket(db, { bucketName: 'uploads' });
+  return { client, bucket, db };
+}
 
-const upload = multer({ storage });
+export default async function handler(req, res) {
+  console.log(`Received request with method: ${req.method}`);
 
-const handler = NextConnect();
-console.log("handler: ", handler);
+  // if (req.method !== 'POST' || req.method !== 'GET') {
+  //   console.log('Method not allowed');
+  //   return res.status(405).json({ message: 'Method not allowed' });
+  // }
 
-// Connect to MongoDB
-handler.use(async (req, res, next) => {
-  console.log('Middleware: Connecting to database...');
-  await connectToDatabase();
-  next();
-});
+  const form = formidable({ multiples: true });
+  const { email } = req.query; 
 
-// Upload file
-handler.post(upload.single('file'), (req, res) => {
-  console.log('Handling file upload...');
-  if (!req.file) {
-    console.log('No file uploaded.');
-    return res.status(400).json({ error: 'No file uploaded' });
-  }
-  console.log('File uploaded successfully:', req.file.originalname);
-  res.status(201).json({
-    filename: req.file.originalname,
-    url: `/api/files/${req.file.filename}`,
-    type: req.file.mimetype,
-    size: req.file.size,
+  form.parse(req, async (err, fields, files) => {
+    if (err) {
+      console.error('Error parsing form:', err);
+      return res.status(500).json({ message: 'Error uploading files' });
+    }
+
+    console.log('Form parsed successfully');
+    console.log('Fields:', fields);
+    console.log('Files:', files);
+
+    const { client, bucket } = await gridConnect(); // Connect to MongoDB and GridFS
+
+    try {
+      const fileUploadPromises = Object.keys(files).map((key) => {
+        const file = files[key];
+        const filePath = file.filepath || file[0].filepath; // Access file path
+
+        if (!filePath) {
+          console.error('File path not found:', file);
+          return Promise.reject(new Error('File path not found'));
+        }
+
+        console.log(`Uploading file: ${path.basename(filePath)}`);
+
+        return new Promise((resolve, reject) => {
+          const uploadStream = bucket.openUploadStream(path.basename(filePath), {
+            contentType: file.mimetype,
+          });
+
+          const readStream = fs.createReadStream(filePath);
+          readStream.pipe(uploadStream);
+
+          readStream.on('error', (error) => {
+            console.error('Read stream error:', error);
+            reject(error);
+          });
+
+          uploadStream.on('error', (error) => {
+            console.error('Upload stream error:', error);
+            reject(error);
+          });
+
+          uploadStream.on('finish', () => {
+            console.log(`File uploaded successfully: ${uploadStream.id}`);
+            resolve(uploadStream.id);
+          });
+        });
+      });
+
+      const fileIds = await Promise.all(fileUploadPromises);
+      console.log('All files uploaded:', fileIds);
+      res.status(200).json({ message: 'Files uploaded successfully', fileIds });
+    } catch (error) {
+      console.error('Error uploading files:', error);
+      res.status(500).json({ message: 'Failed to upload files' });
+    } finally {
+      console.log('Closing MongoDB client');
+      await client.close();
+      console.log('MongoDB client closed');
+    }
   });
-});
-
-// Retrieve file
-handler.get(async (req, res) => {
-  console.log('Handling file retrieval...');
-  const { filename } = req.query;
-  console.log('Filename for retrieval:', filename);
-  try {
-    gfs.files.findOne({ filename }, (err, file) => {
-      if (err) {
-        console.error('Error finding file:', err);
-        return res.status(500).json({ error: 'Error finding file' });
-      }
-      if (!file || file.length === 0) {
-        console.log('No file found with the given filename.');
-        return res.status(404).json({ error: 'No file found' });
-      }
-      console.log('File found, creating read stream.');
-      const readStream = gfs.createReadStream(file.filename);
-      readStream.pipe(res);
-    });
-  } catch (error) {
-    console.error('Error handling file retrieval:', error);
-    res.status(500).json({ error: 'Failed to retrieve file' });
-  }
-});
-
-// Delete file
-handler.delete(async (req, res) => {
-  console.log('Handling file deletion...');
-  const { filename } = req.query;
-  console.log('Filename for deletion:', filename);
-  try {
-    gfs.files.deleteOne({ filename }, (err) => {
-      if (err) {
-        console.error('Failed to delete file:', err);
-        return res.status(500).json({ error: 'Failed to delete file' });
-      }
-      console.log('File deleted successfully.');
-      res.status(200).json({ message: 'File deleted successfully' });
-    });
-  } catch (error) {
-    console.error('Error handling file deletion:', error);
-    res.status(500).json({ error: 'Failed to delete file' });
-  }
-});
-
-export default handler;
+}

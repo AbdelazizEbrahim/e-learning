@@ -21,10 +21,10 @@ const MyPurchase = () => {
       console.log("API response:", result);
 
       // Check if the result.data is an array
-      if (Array.isArray(result.data)) {
-        setCourses(result.data);
+      if (Array.isArray(result)) {
+        setCourses(result);
       } else {
-        console.error('Expected an array but got:', result.data);
+        console.error('Expected an array but got:', result);
         setCourses([]);
       }
     } catch (error) {
@@ -68,7 +68,7 @@ const MyPurchase = () => {
                 <div key={course._id} className="bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col relative">
                   <div className="relative mb-4">
                     <Image
-                      src={'/image.jpeg'}
+                      src={course.imageUrl}
                       alt={course.courseTitle}
                       width={400}
                       height={160} // Adjust height as per the aspect ratio

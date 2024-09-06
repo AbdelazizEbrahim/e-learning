@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { FaCamera, FaPlus } from 'react-icons/fa'; 
 import jwt from 'jsonwebtoken';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import { jwtDecode } from 'jwt-decode';
 
 const AccountSettings = () => {
   const [activeForm, setActiveForm] = useState(null);
@@ -19,18 +21,22 @@ const AccountSettings = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [profileImage, setProfileImage] = useState(null); 
   const [showDocForm, setShowDocForm] = useState(false);
 
+  let email='';
   useEffect(() => {
     const token = localStorage.getItem('authToken');
+    const decoded = jwt.decode(token);
+    email = decoded?.email;
     if (token) {
-      const decoded = jwt.decode(token);
-      const email = decoded?.email;
+      email = decoded?.email;
       if (email) {
         setFormData(prevData => ({
           ...prevData,
-          email: email,  // Set email from local storage
+          email: email,  
         }));
+        fetchProfileImage(email); // Fetch profile image when email is available
       }
     }
 
@@ -50,10 +56,11 @@ const AccountSettings = () => {
     const fetchProfileData = async () => {
       setLoading(true);
       const token = localStorage.getItem('authToken');
+      const decoded = jwt.decode(token);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      email = decoded?.email;
       if (token) {
         try {
-          const decoded = jwt.decode(token);
-          const email = decoded?.email;
           if (email) {
             const response = await fetch(`/api/instructorProfile?email=${email}`);
             if (!response.ok) {
@@ -63,8 +70,8 @@ const AccountSettings = () => {
             if (data.success) {
               setFormData(prevData => ({
                 ...prevData,
-                ...data.data, // Spread the received data into formData
-                email: email,  // Set email from local storage
+                ...data.data, 
+                email: email,  
               }));
             } else {
               throw new Error(data.error);
@@ -84,6 +91,97 @@ const AccountSettings = () => {
       fetchProfileData();
     }
   }, [activeForm]);
+
+  const fetchProfileImage = async (email) => {
+    console.log("email to get:", email);
+    try {
+      const response = await fetch(`/api/photo?email=${email}`);
+      console.log("Response status:", response.status);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      console.log("Fetched image data:", data);
+  
+      if (data && data.data.imageUrl) {
+        setProfileImage(data.data.imageUrl); // Set the profile image URL
+      } else {
+        console.warn('No imageUrl found in the response data');
+      }
+    } catch (error) {
+      console.error('Error fetching profile image:', error);
+    }
+  };
+  
+
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('authToken');
+      const decoded = jwtDecode(token);
+      const email = decoded.email;
+      console.log("email:", email);
+      const response = await fetch(`/api/photo?email=${email}`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setProfileImage(data.imageUrl); // Update profile image URL after upload
+      } else {
+        console.error('Image upload failed');
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleImageUpdate = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('authToken');
+      const decoded = jwtDecode(token);
+      const email = decoded.email;
+      console.log("email:", email);
+      const response = await fetch(`/api/photo?email=${email}`, {
+        method: 'PUT',
+        body: formData,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setProfileImage(data.imageUrl); 
+      } else {
+        console.error('Image upload failed');
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleButtonClick = (formName) => {
     setActiveForm(formName);
@@ -144,24 +242,47 @@ const AccountSettings = () => {
         });
 
       } else if (activeForm === 'uploadDocumentation') {
+        // Make sure the email is properly defined
+        if (!email) {
+          console.error('Email is not defined');
+          return;
+        }
+      
         const formDataForUpload = new FormData();
+        
+        // Append files to formData if they exist
         if (formData.degree) formDataForUpload.append('degree', formData.degree);
         if (formData.cv) formDataForUpload.append('cv', formData.cv);
-        
-        response = await fetch(`/api/files`, {
-          method: 'POST',
-          body: formDataForUpload,
-          headers: {
-            'Authorization': `Bearer ${token}`
+      
+        try {
+          const response = await fetch(`/api/files?email=${encodeURIComponent(email)}`, {
+            method: 'POST',
+            body: formDataForUpload,
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              // 'Content-Type': 'multipart/form-data' // Do not set Content-Type, as FormData will set it automatically
+            }
+          });
+      
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Failed to upload documentation: ${errorText}`);
           }
-        });
+      
+          const result = await response.json();
+          console.log('Upload successful:', result);
+      
+        } catch (error) {
+          console.error('Error uploading documentation:', error);
+        }
       }
+      
 
+      console.log("respo: ", response)
       if (!response.ok) {
         throw new Error('Action failed');
       }
 
-      console.log("response: ",response)
       const result = await response.json();
       console.log("data: ", result);
       if (result.success) {
@@ -197,7 +318,7 @@ const AccountSettings = () => {
       </div>
 
       {activeForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out overflow-y-auto ">
           <div className="bg-gray-100 p-6 rounded-lg shadow-lg w-full max-w-lg relative modal-content overflow-y-auto max-h-[90vh]">
             <h2 className="text-xl font-semibold mb-4">
               {activeForm === 'viewProfile' && 'View Profile'}
@@ -207,124 +328,154 @@ const AccountSettings = () => {
             </h2>
 
             {activeForm === 'viewProfile' && (
-              <div className="space-y-4">
-                <p><strong>Job Title:</strong> {formData.jobTitle}</p>
-                <p><strong>Full Name:</strong> {formData.fullName}</p>
-                <p><strong>Email:</strong> {formData.email}</p>
-                <p><strong>Instructor ID:</strong> {formData.instructorId}</p>
-                <p><strong>Age:</strong> {formData.age}</p>
-                <p><strong>Gender:</strong> {formData.gender}</p>
-                <p><strong>City:</strong> {formData.city}</p>
-                <p><strong>Biography:</strong> {formData.biography}</p>
+              <div className='w-2/3'>
+                <div className="text-center mb-6">
+                  {profileImage ? (
+                    <img
+                      src={profileImage}
+                      alt="Profile"
+                      className="w-28 h-28 rounded-full mx-auto"
+                    />
+                  ) : (
+                    <label className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center mx-auto cursor-pointer">
+                      <FaCamera className="text-gray-500" size={30} />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageUpload}
+                      />
+                    </label>
+                  )}
+                </div>
+                <div className="space-y-4">
+                  <p><strong>Job Title:</strong> {formData.jobTitle}</p>
+                  <p><strong>Full Name:</strong> {formData.fullName}</p>
+                  <p><strong>Email:</strong> {formData.email}</p>
+                  <p><strong>Instructor ID:</strong> {formData.instructorId}</p>
+                  <p><strong>Age:</strong> {formData.age}</p>
+                  <p><strong>Gender:</strong> {formData.gender}</p>
+                  <p><strong>City:</strong> {formData.city}</p>
+                  <p><strong>Biography:</strong> {formData.biography}</p>
+                </div>
               </div>
             )}
 
-            {(activeForm === 'updateProfile' || activeForm === 'upgradeProfile') && (
-              <form onSubmit={handleSubmit}>
-                <label className="block mb-2">Job Title</label>
+            { (activeForm === 'updateProfile' || activeForm === 'upgradeProfile') && (
+            <div>
+              <div>
+                <div className="text-center mb-6 relative">
+                  {profileImage ? (
+                    <img
+                      src={profileImage}
+                      alt="Profile"
+                      className="w-24 h-24 rounded-full mx-auto"
+                    />
+                  ) : (
+                    <label className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center mx-auto cursor-pointer">
+                      <FaCamera className="text-gray-500" size={30} />
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageUpdate}
+                      />
+                    </label>
+                  )}
+                  {/* Plus button for updating the profile image */}
+                  <label
+                    htmlFor="file-upload"
+                    className="absolute bottom-0 right-0 mb-1 mr-1 bg-white rounded-full p-1 shadow-md cursor-pointer"
+                  >
+                    <FaPlus size={20} className="text-gray-700" />
+                    <input
+                      id="file-upload"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageUpdate}
+                    />
+                  </label>
+                </div>
+              </div>
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <Input
-                  type="text"
+                  label="Job Title"
                   name="jobTitle"
                   value={formData.jobTitle}
                   onChange={handleChange}
-                  placeholder="Job Title"
-                  className="mb-4"
                 />
-                <label className="block mb-2">Full Name</label>
                 <Input
-                  type="text"
+                  label="Full Name"
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleChange}
-                  placeholder="Full Name"
-                  className="mb-4"
                 />
-                <label className="block mb-2">Email</label>
                 <Input
-                  type="text"
-                  name="email"
-                  value={formData.email}
-                  placeholder="Email"
-                  className="mb-4"
-                  disabled
-                />
-                <label className="block mb-2">Instructor ID</label>
-                <Input
-                  type="text"
-                  name="instructorId"
-                  value={formData.instructorId}
-                  placeholder="Instructor ID"
-                  onChange={handleChange}
-                  disabled={activeForm === 'updateProfile'}
-                  className="mb-4"
-                />
-                <label className="block mb-2">Age</label>
-                <Input
-                  type="number"
+                  label="Age"
                   name="age"
+                  type="number"
                   value={formData.age}
                   onChange={handleChange}
-                  placeholder="Age"
-                  className="mb-4"
                 />
-                <label className="block mb-2">Gender</label>
                 <Input
-                  type="text"
+                  label="Gender"
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
-                  placeholder="Gender"
-                  className="mb-4"
                 />
-                <label className="block mb-2">City</label>
                 <Input
-                  type="text"
+                  label="City"
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
-                  placeholder="City"
-                  className="mb-4"
                 />
-                <label className="block mb-2">Biography</label>
                 <Input
-                  type="text"
+                  label="Biography"
                   name="biography"
                   value={formData.biography}
                   onChange={handleChange}
-                  placeholder="Biography"
-                  className="mb-4"
+                  textarea
                 />
-                <Button type="submit" className="bg-green-500 text-white" disabled={loading}>
+                <Button type="submit" disabled={loading}>
                   {loading ? 'Loading...' : 'Submit'}
                 </Button>
               </form>
-            )}
+            </div>
+  )}
 
-            {showDocForm && (
-              <form onSubmit={handleSubmit}>
-                <label className="block mb-2">Degree Document</label>
+            {activeForm === 'uploadDocumentation' && (
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <Input
-                  type="file"
+                  label="Upload Degree"
                   name="degree"
-                  onChange={handleChange}
-                  className="mb-4"
-                />
-                <label className="block mb-2">CV Document</label>
-                <Input
                   type="file"
-                  name="cv"
                   onChange={handleChange}
-                  className="mb-4"
                 />
-                <Button type="submit" className="bg-teal-500 text-white" disabled={loading}>
-                  {loading ? 'Loading...' : 'Upload'}
+                <Input
+                  label="Upload CV"
+                  name="cv"
+                  type="file"
+                  onChange={handleChange}
+                />
+                <Button type="submit" disabled={loading}>
+                  {loading ? 'Uploading...' : 'Submit'}
                 </Button>
               </form>
             )}
 
-            {error && <p className="text-red-500 mt-4">{error}</p>}
+            {error && (
+              <div className="text-red-500 mt-4">
+                <p>{error}</p>
+              </div>
+            )}
 
-            <Button onClick={handleClose} className="absolute top-2 right-2 bg-red-500 text-white">Close</Button>
+            <button
+              onClick={handleClose}
+              className="absolute top-2 right-2 text-red-500 hover:text-red-700"
+            >
+              &#10005;
+            </button>
           </div>
         </div>
       )}
@@ -333,3 +484,4 @@ const AccountSettings = () => {
 };
 
 export default AccountSettings;
+

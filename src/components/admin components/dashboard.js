@@ -47,12 +47,14 @@ const AdminDashboard = () => {
                 // Parse JSON data from responses
                 const userData = await userResponse.json();
                 const studentData = await studentResponse.json();
+                console.log("student: ", studentData)
                 const courseData = await courseResponse.json();
+                console.log("course: ", courseData)
                 const instructorData = await instructorResponse.json();
 
                 // Update state with counts
                 setUserCount(Array.isArray(userData.users) ? userData.users.length : 0);
-                setStudentCount(Array.isArray(studentData.data) ? studentData.data.length : 0);
+                setStudentCount(Array.isArray(studentData) ? studentData.length : 0);
                 setCourseCount(Array.isArray(courseData) ? courseData.length : 0);
                 setInstructorCount(Array.isArray(instructorData.data) ? instructorData.data.length : 0);
 
@@ -96,7 +98,7 @@ const AdminDashboard = () => {
             if (cardType === 'Users') {
                 setListData(Array.isArray(responseData.users) ? responseData.users : []);
             } else if (cardType === 'Students') {
-                setListData(Array.isArray(responseData.data) ? responseData.data : []);
+                setListData(Array.isArray(responseData) ? responseData : []);
             } else if (cardType === 'Courses') {
                 setListData(Array.isArray(responseData) ? responseData : []);
             } else if (cardType === 'Instructors') {

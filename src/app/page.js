@@ -96,7 +96,7 @@ export default function Home() {
               >
                 <div className='relative mb-4'>
                   <Image
-                    src={'/image.jpeg'}
+                    src={course.imageUrl}
                     alt={course.courseTitle}
                     width={320}
                     height={180}

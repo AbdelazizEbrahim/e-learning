@@ -8,7 +8,7 @@ export default async (req, res) => {
     switch (req.method) {
         case 'POST':
             try {
-                const { userEmail, courseCode, price, paymentId, paymentStatus, status, courseTitle, instructor, description, overview, requirements, whatWeWillLearn } = req.body;
+                const { userEmail, courseCode, price, paymentId, paymentStatus, status, courseTitle, imageUrl, instructor, description, overview, requirements, whatWeWillLearn } = req.body;
 
                 if (!userEmail || !courseCode) {
                     return res.status(400).json({ message: 'userEmail and courseCode are required' });
@@ -30,6 +30,7 @@ export default async (req, res) => {
                     paymentId,
                     paymentStatus,
                     status,
+                    imageUrl,
                     courseTitle,
                     instructor,
                     description,
@@ -37,6 +38,7 @@ export default async (req, res) => {
                     requirements,
                     whatWeWillLearn,
                 });
+                console.log("new cart: ", newCartEntry);
 
                 await newCartEntry.save();
                 return res.status(201).json({ message: 'Enrollment successful', cartEntry: newCartEntry });

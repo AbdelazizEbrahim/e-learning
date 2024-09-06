@@ -155,7 +155,7 @@ const PaymentPage = () => {
                         {courses.map((course) => (
                             <li key={course.id} className="mb-4 p-4 border-b border-gray-300 flex items-center">
                                 <img
-                                    src={'/image.jpeg'}
+                                    src={course.imageUrl}
                                     alt={course.courseTitle}
                                     className="w-16 h-16 rounded-full mr-4 object-cover"
                                 />

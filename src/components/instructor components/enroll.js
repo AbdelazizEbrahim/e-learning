@@ -57,7 +57,7 @@ export default function EnrollStudent() {
       }
       const data = await response.json();
       setCourseInfo(data);
-      console.log('Course info fetched:', data); // Log fetched course info
+      console.log('Course info fetched:', data); 
     } catch (error) {
       console.error('Error fetching course information:', error);
     }
@@ -87,6 +87,7 @@ export default function EnrollStudent() {
           paymentStatus: 'Pending', 
           status: 'Pending', 
           courseTitle: courseInfo.courseTitle,
+          imageUrl: courseInfo.imageUrl,
           instructor: courseInfo.instructor,
           description: courseInfo.description,
           overview: courseInfo.overview,
@@ -119,13 +120,16 @@ export default function EnrollStudent() {
         <div className='bg-[#16202a] text-white p-6 rounded-lg shadow-lg w-full max-w-sm'>
           {courseInfo ? (
             <>
-              <Image
-                src={courseInfo.image || '/image.jpeg'} // Use the image URL from courseInfo or a default image
-                alt={courseInfo.courseTitle}
-                width={500} 
-                height={200} 
-                className='w-full h-40 object-cover rounded mb-4'
-              />
+              <div className='relative w-full h-40 mb-4'>
+                <Image
+                  src={courseInfo.imageUrl}
+                  alt={courseInfo.courseTitle}
+                  layout='fill'
+                  objectFit='cover'
+                  className='rounded'
+                  priority // Add priority prop
+                />
+              </div>
               <p className='text-sm mb-1'><strong>Course Name:</strong> {courseInfo.courseTitle}</p>
               <p className='text-sm mb-1'><strong>Course Code:</strong> {courseCode}</p>
               <p className='text-sm mb-1'><strong>Price:</strong> {courseInfo.price}</p>
@@ -147,7 +151,7 @@ export default function EnrollStudent() {
             className='bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-400 transition-colors duration-300'
             disabled={loading}
           >
-            Add to Cart
+            {loading ? 'Adding...' : 'Add to Cart'}
           </button>
         </div>
       </main>

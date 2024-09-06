@@ -90,6 +90,7 @@ export default function EnrollStudent() {
                 paymentId: '', // Assuming you will handle this later
                 paymentStatus: 'Pending',
                 status: 'Pending',
+                imageUrl: courseInfo.imageUrl,
                 courseTitle: courseInfo.courseTitle,
                 instructor: courseInfo.instructor,
                 description: courseInfo.description,

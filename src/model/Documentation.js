@@ -1,24 +1,38 @@
 import mongoose from 'mongoose';
 
-const { Schema, model, models } = mongoose;
-
-const DocumentationSchema = new Schema({
-  email: {
+const fileSchema = new mongoose.Schema({
+  filename: {
     type: String,
     required: true,
-    unique: true,
   },
-  cv: {
-    type: String, // URL or path to the CV file
+  fileId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'GridFS',
+  },
+  contentType: {
+    type: String,
+    required: true,
+  },
+  size: {
+    type: Number,
+    required: true,
+  },
+  uploadDate: {
+    type: Date,
+    default: Date.now,
+  },
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
     required: false,
+    ref: 'User',  
   },
-  degree: {
-    type: String, // URL or path to the degree file
-    required: false,
+  documentType: {
+    type: String,
+    enum: ['degree', 'cv'], 
   },
-}, { timestamps: true });
+});
 
-// Avoid redefining the model if it already exists
-const Documentation = models.Documentation || model('Documentation', DocumentationSchema);
+const File = mongoose.models.File || mongoose.model('File', fileSchema);
 
-export default Documentation;
+export default File;

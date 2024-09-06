@@ -5,7 +5,7 @@ const connect = async () => {
         console.log('Already connected to MongoDB');
         return;
     }
-    console.log('DATABASE_URI:', process.env.DATABASE_URI);
+    // console.log('DATABASE_URI:', process.env.DATABASE_URI);
 
     try {
         console.log('Connecting to MongoDB...');

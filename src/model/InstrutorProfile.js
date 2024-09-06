@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
 
-const { Schema, model, models } = mongoose;
+const { Schema } = mongoose;
 
+// Define the schema
 const instructorProfileSchema = new Schema({
   fullName: {
     type: String,
@@ -25,6 +26,7 @@ const instructorProfileSchema = new Schema({
   gender: {
     type: String,
     required: true,
+    enum: ['Male', 'Female'], // Example validation for gender
   },
   city: {
     type: String,
@@ -40,6 +42,8 @@ const instructorProfileSchema = new Schema({
   },
 }, { timestamps: true });
 
-const InstructorProfile = models.InstructorProfile || model('InstructorProfile', instructorProfileSchema);
+// Create the model
+const InstructorProfile = mongoose.models.InstructorProfile || mongoose.model('InstructorProfile', instructorProfileSchema);
 
+// Export the model
 export default InstructorProfile;

@@ -139,9 +139,14 @@ const CourseList = () => {
 
     const handleUpdate = async (e) => {
         e.preventDefault();
+        
         const { courseTitle, imageUrl, description, price, overview, requirements, whatWeWillLearn } = e.target.elements;
+        const courseCode = editCourse?.courseCode; // Use courseCode from editCourse
     
-        if (!editCourse) return;
+        if (!courseCode) {
+            console.error('Course code is missing.');
+            return;
+        }
     
         setAddLoading(true);
         try {
@@ -152,7 +157,7 @@ const CourseList = () => {
                 },
                 body: JSON.stringify({
                     courseTitle: courseTitle.value,
-                    courseCode: editCourse.courseCode,
+                    courseCode: courseCode,
                     imageUrl: imageUrl.value,
                     description: description.value,
                     price: price.value,
@@ -182,6 +187,7 @@ const CourseList = () => {
             setAddLoading(false);
         }
     };
+    
 
     const handleDelete = async (courseCode) => {
         if (window.confirm("Are you sure you want to delete this course?")) {
@@ -261,7 +267,7 @@ const CourseList = () => {
                                 </div>
                                 <div className="relative w-full h-32 mb-4">
                                     <Image
-                                        src={'/image.jpeg'}
+                                        src={course.imageUrl}
                                         alt={course.courseTitle}
                                         width={400}
                                         height={300}

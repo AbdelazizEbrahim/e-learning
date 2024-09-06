@@ -23,10 +23,10 @@ const MyLearning = () => {
       console.log("API response:", result);
 
       // Check if the result.data is an array
-      if (Array.isArray(result.data)) {
-        setCourses(result.data);
+      if (Array.isArray(result)) {
+        setCourses(result);
       } else {
-        console.error('Expected an array but got:', result.data);
+        console.error('Expected an array but got:', result);
         setCourses([]);
       }
     } catch (error) {
@@ -37,14 +37,14 @@ const MyLearning = () => {
     }
   };
 
-//   useEffect(() => {
-//     const reloadedToken = localStorage.getItem('reloadedToken');
+  useEffect(() => {
+    const reloadedToken = localStorage.getItem('reloadedToken');
     
-//     if (!reloadedToken) {
-//       localStorage.setItem('reloadedToken', 'true');
-//       window.location.reload();
-//     }
-//   }, []);
+    if (!reloadedToken) {
+      localStorage.setItem('reloadedToken', 'true');
+      window.location.reload();
+    }
+  }, []);
 
   useEffect(() => {
     // Decode the token to get the user's email
@@ -70,7 +70,7 @@ const MyLearning = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full p-6 mt-72">
+    <div className="flex flex-col items-center justify-center w-full h-full p-6 mt-0">
       <div className="mt-28 bg-[#16202a] text-white p-6 rounded-lg shadow-lg w-full max-w-5xl">
         <h1 className="text-3xl font-semibold mb-4">Course List</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
@@ -82,7 +82,7 @@ const MyLearning = () => {
                 <div key={course._id} className="bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col relative">
                   <div className="relative mb-4">
                     <Image
-                      src={ '/image.jpeg'}
+                      src={course.imageUrl}
                       alt={course.courseTitle}
                       width={400}
                       height={160} // Adjust height as per the aspect ratio

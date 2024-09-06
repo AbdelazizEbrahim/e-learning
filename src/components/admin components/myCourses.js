@@ -114,7 +114,7 @@ const CourseList = () => {
                             approvedCourses.map((course) => (
                                 <div key={course.courseCode} className="bg-gray-700 p-4 rounded-lg shadow-lg">
                                     <img
-                                        src="/image.jpeg"
+                                        src={course.imageUrl}
                                         alt="Course Image"
                                         className="w-full h-32 object-cover mb-4 rounded"
                                     />
