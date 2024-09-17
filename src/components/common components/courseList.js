@@ -50,31 +50,35 @@ const Dashboard = () => {
           const decoded = jwt.decode(token);
           email = decoded?.email || '';
         }
-
+    
         const enrollmentResponse = await fetch(`/api/enrollment?userEmail=${email}&paymentStatus=PAID`);
         if (!enrollmentResponse.ok) {
           console.log('Failed to fetch enrollment data');
         }
-
+    
         const enrolled = await enrollmentResponse.json();
-        console.log("enrolled: ", enrolled)
-        const enrolledCourses = enrolled;
-
+        console.log("enrolled: ", enrolled);
+    
+        // Check if enrolledCourses is empty or not
+        const enrolledCourses = enrolled?.length ? enrolled : [];
+    
         // Fetch courses data
         const coursesResponse = await fetch('/api/course');
         if (!coursesResponse.ok) {
           console.log('Failed to fetch courses');
         }
         const allCourses = await coursesResponse.json();
-
+    
         let filteredCourses;
-        if (!enrolledCourses) {
+        if (enrolledCourses.length === 0) {
+          // If enrolledCourses is empty, render all courses
           filteredCourses = allCourses;
         } else {
+          // Otherwise, filter out enrolled courses
           const enrolledCourseCodes = new Set(enrolledCourses.map(course => course.courseCode));
           filteredCourses = allCourses.filter(course => !enrolledCourseCodes.has(course.courseCode));
         }
-
+    
         setCourses(filteredCourses);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -82,6 +86,7 @@ const Dashboard = () => {
         setLoading(false);
       }
     };
+    
 
     fetchEnrollmentAndCourses();
 

@@ -8,7 +8,7 @@ const handler = async (req, res) => {
   console.log("Connected to the database.");
 
   const { method } = req;
-  const { email } = req.query; 
+  const { email, isApproved } = req.query; 
   console.log("Request method:", method);
   console.log("Query params:", req.query);
 
@@ -34,33 +34,56 @@ const handler = async (req, res) => {
       }
       break;
     
-    case 'PUT':
-      try {
-        console.log("Update request for email:", email);
-        if (!email) {
-          console.log("Email not provided.");
-          return res.status(400).json({ success: false, error: 'Email is required' });
-        }
+      case 'PUT':
+  try {
+    console.log("Update request for email:", email);
+    if (!email) {
+      console.log("Email not provided.");
+      return res.status(400).json({ success: false, error: 'Email is required' });
+    }
 
-        const updatedProfile = await InstructorProfile.findOneAndUpdate(
-          { email },
-          req.body,
-          { new: true, runValidators: true }
-        );
-        console.log("Updating profile...");
-        if (!updatedProfile) {
-          console.log("Profile not found for email:", email);
-          return res.status(404).json({ success: false, error: 'Profile not found' });
-        }
-        console.log("Profile updated successfully:", updatedProfile);
-        res.status(200).json({ success: true, data: updatedProfile });
-      } catch (error) {
-        console.error("Error updating profile:", error);
-        res.status(400).json({ success: false, error: error.message });
+    // Check if the request is for toggling approval status
+    if (req.body.toggleApproval) {
+      const profile = await InstructorProfile.findOne({ email });
+      
+      if (!profile) {
+        console.log("Instructor not found");
+        return res.status(404).json({ success: false, error: "Instructor not found" });
       }
-      break;
 
-    case 'GET':
+      // Toggle the isApproved status
+      const updatedProfile = await InstructorProfile.findOneAndUpdate(
+        { email },
+        { isApproved: !profile.isApproved },
+        { new: true }
+      );
+
+      console.log("Instructor approval status toggled successfully:", updatedProfile);
+      return res.status(200).json({ success: true, data: updatedProfile });
+    }
+
+    // Handle regular profile updates
+    const updatedProfile = await InstructorProfile.findOneAndUpdate(
+      { email },
+      req.body,
+      { new: true, runValidators: true }
+    );
+
+    console.log("Updating profile...");
+    if (!updatedProfile) {
+      console.log("Profile not found for email:", email);
+      return res.status(404).json({ success: false, error: 'Profile not found' });
+    }
+
+    console.log("Profile updated successfully:", updatedProfile);
+    res.status(200).json({ success: true, data: updatedProfile });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(400).json({ success: false, error: error.message });
+  }
+  break;
+
+        case 'GET':
       try {
         console.log("Fetching profile(s)...");
         if (email) {
@@ -113,3 +136,14 @@ const handler = async (req, res) => {
 };
 
 export default handler;
+
+
+
+
+
+
+
+
+
+
+

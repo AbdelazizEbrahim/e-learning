@@ -9,8 +9,8 @@ const handler = async (req, res) => {
   switch (req.method) {
     case 'POST': // Create a new admin
       return createAdmin(req, res);
-    case 'GET': // Get an admin by email
-      return getAdminByEmail(req, res);
+    case 'GET': // Get admins based on email or all admins
+      return getAdmins(req, res);
     case 'PUT': // Update an admin by email
       return updateAdminByEmail(req, res);
     case 'DELETE': // Delete an admin by email
@@ -32,15 +32,22 @@ const createAdmin = async (req, res) => {
   }
 };
 
-// Get an admin by email
-const getAdminByEmail = async (req, res) => {
+// Get admins based on email or fetch all admins
+const getAdmins = async (req, res) => {
   const { email } = req.query; // Email passed in the query string
   try {
-    const admin = await Admin.findOne({ adminEmail: email });
-    if (!admin) {
-      return res.status(404).json({ message: 'Admin not found' });
+    if (email) {
+      // Fetch one admin by email
+      const admin = await Admin.findOne({ adminEmail: email });
+      if (!admin) {
+        return res.status(404).json({ message: 'Admin not found' });
+      }
+      return res.status(200).json(admin);
+    } else {
+      // Fetch all admins
+      const admins = await Admin.find();
+      return res.status(200).json(admins);
     }
-    res.status(200).json(admin);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

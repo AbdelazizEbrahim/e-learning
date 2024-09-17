@@ -1,52 +1,71 @@
-// Import necessary components and modules
 'use client'
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 
 export default function About() {
+  const [aboutTexts, setAboutTexts] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchAboutTexts = async () => {
+      try {
+        const response = await fetch('/api/aboutText');
+        const data = await response.json();
+        const sortedData = data.data.sort((a, b) => b.priority - a.priority);
+        setAboutTexts(sortedData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchAboutTexts();
+  }, []);
+
+  const handleContactClick = () => {
+    setLoading(true);
+    // Simulate a network request or navigation delay
+    setTimeout(() => {
+      window.location.href = '/contact';
+      setLoading(false); // Reset loading state if necessary
+    }, 1000); // Adjust the timeout as needed
+  };
+
   return (
-    <div className='relative w-screen h-screen p-0 mt-0'>
+    <div className='relative w-screen h-screen p-0 mt-12'>
       <main className='flex flex-col items-center justify-center w-full h-full p-0'>
         <div className='bg-[#16202a] text-white p-6 rounded-lg shadow-lg max-w-4xl mx-auto mb-0'>
-          <h1 className='text-3xl font-semibold mb-4'>About Us</h1>
-          <p className='text-lg mb-8'>
+          <h1 className='text-3xl font-semibold mb-4 text-center'>About Us</h1>
+          <p className='text-lg mb-8 text-center w-3/4 mx-auto'>
             Welcome to our e-learning platform! We are passionate about providing high-quality education to learners worldwide.
           </p>
 
-          <section className='mb-8'>
-            <h2 className='text-2xl font-semibold mb-4'>Our Mission</h2>
-            <p className='text-lg'>
-              Our mission is to empower learners through accessible and comprehensive education, fostering a community of lifelong learners.
-            </p>
-          </section>
+          {aboutTexts.map((text, index) => (
+            <section key={index} className='mb-8 flex flex-col items-center'>
+              <h2 className='text-2xl font-semibold mb-4 text-center'>{text.title}</h2>
+              <p className='text-lg text-center w-full max-w-xl'>{text.mainBody}</p>
+              {/* Add horizontal line */}
+              {index < aboutTexts.length - 1 && (
+                <hr className='my-8 border-gray-400 w-full max-w-4xl mx-auto' />
+              )}
+            </section>
+          ))}
 
-          <section className='mb-8'>
-            <h2 className='text-2xl font-semibold mb-4'>Meet Our Team</h2>
-            <div className='flex flex-wrap gap-4'>
-              <div className='bg-white text-gray-800 p-4 rounded-lg shadow-md w-48'>
-                <h3 className='text-lg font-semibold'>Abdelaziz E.</h3>
-                <p>CEO & Founder</p>
-              </div>
-              <div className='bg-white text-gray-800 p-4 rounded-lg shadow-md w-48'>
-                <h3 className='text-lg font-semibold'>Daniya A.</h3>
-                <p>Lead Developer</p>
-              </div>
-              <div className='bg-white text-gray-800 p-4 rounded-lg shadow-md w-48'>
-                <h3 className='text-lg font-semibold'>Nahom A.</h3>
-                <p>Content Creator</p>
-              </div>
-            </div>
-          </section>
-          
-          {/* Call to Action */}
-          <section className='mt-6'>
-            <Button
-              onClick={() => window.location.href = '/contact'}
-              className='w-40 bg-indigo-600 rounded-full hover:bg-indigo-400 transition-colors duration-300'
+          <section className='mt-6 text-center'>
+            <button
+              onClick={handleContactClick}
+              className={`px-4 bg-indigo-600 rounded-full hover:bg-indigo-400 transition-colors duration-300 flex items-center justify-center py-2 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              disabled={loading}
             >
-              Contact Us
-            </Button>
+              {loading ? (
+                <svg className="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="none" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+              ) : (
+                'Contact Us'
+              )}
+            </button>
           </section>
         </div>
       </main>

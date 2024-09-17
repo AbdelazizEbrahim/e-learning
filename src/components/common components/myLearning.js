@@ -61,7 +61,7 @@ const MyLearning = () => {
     setEnrollLoading((prev) => ({ ...prev, [courseCode]: true }));
     try {
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate loading
-      router.push(`/user/start-learning?courseCode=${encodeURIComponent(courseCode)}`);
+      router.push(`/startLearning?courseCode=${encodeURIComponent(courseCode)}`);
     } catch (error) {
       console.error('Error occurred while redirecting:', error);
     } finally {

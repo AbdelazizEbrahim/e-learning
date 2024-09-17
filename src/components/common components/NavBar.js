@@ -55,7 +55,7 @@ const NavBar = () => {
           return;
         }
         const data = await response.json();
-        // console.log("data: ", data.data)
+        console.log("data: ", data.data)
         if (role === 'admin') {
           setProfileImages(prevState => ({ ...prevState, admin: data.data.imageUrl }));
         } else if (role === 'user') {
@@ -157,6 +157,8 @@ const NavBar = () => {
                   <Link href="/admin/accountSetting" className="block px-3 py-2 hover:bg-gray-100">Account Settings</Link>
                   <Link href="/admin/partner" className="block px-3 py-2 hover:bg-gray-100">Partners</Link>
                   <Link href="/admin/testimony" className="block px-3 py-2 hover:bg-gray-100">Testimonies</Link>
+                  <Link href="/admin/instructorsList" className="block px-3 py-2 hover:bg-gray-100">Users Detail</Link>
+                  <Link href="/admin/aboutPage" className="block px-3 py-2 hover:bg-gray-100">About Text</Link>
                   <button onClick={handleLogout} className="w-full text-left px-3 py-2 hover:bg-gray-100">Log Out</button>
                 </div>
               )}

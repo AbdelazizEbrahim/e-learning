@@ -3,7 +3,7 @@ import Sidebar from "@/components/user components/sideBar";
 
 export default function enroll(){
     return (
-        <div className="relative w-screen h-screen ">
+        <div className="relative w-screen">
             <EnrollStudent />
             {/* <Sidebar /> */}
         </div>

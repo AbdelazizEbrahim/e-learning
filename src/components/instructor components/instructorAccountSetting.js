@@ -5,6 +5,7 @@ import { FaCamera, FaPlus } from 'react-icons/fa';
 import jwt from 'jsonwebtoken';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import { Label } from '../ui/label';
 import { jwtDecode } from 'jwt-decode';
 
 const AccountSettings = () => {
@@ -212,91 +213,85 @@ const AccountSettings = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
+  
     const token = localStorage.getItem('authToken');
     const email = jwt.decode(token)?.email;
-
+  
+    if (!token || !email) {
+      setError('Authentication error. Please log in again.');
+      setLoading(false);
+      return;
+    }
+  
     try {
       let response;
+  
       if (activeForm === 'updateProfile') {
+        // Update profile form submission
         response = await fetch(`/api/instructorProfile?email=${email}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            ...formData
-          })
+          body: JSON.stringify({ ...formData }),
         });
       } else if (activeForm === 'upgradeProfile') {
+        // Upgrade profile form submission
         response = await fetch(`/api/instructorProfile`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            ...formData
-          })
+          body: JSON.stringify({ ...formData }),
         });
-
       } else if (activeForm === 'uploadDocumentation') {
-        // Make sure the email is properly defined
-        if (!email) {
-          console.error('Email is not defined');
+        // Documentation upload form
+        const formDataForUpload = new FormData();
+        if (!formData.degree || !formData.cv) {
+          setError('Please upload both degree and CV files.');
+          setLoading(false);
           return;
         }
-      
-        const formDataForUpload = new FormData();
-        
-        // Append files to formData if they exist
-        if (formData.degree) formDataForUpload.append('degree', formData.degree);
-        if (formData.cv) formDataForUpload.append('cv', formData.cv);
-      
-        try {
-          const response = await fetch(`/api/files?email=${encodeURIComponent(email)}`, {
-            method: 'POST',
-            body: formDataForUpload,
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              // 'Content-Type': 'multipart/form-data' // Do not set Content-Type, as FormData will set it automatically
-            }
-          });
-      
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Failed to upload documentation: ${errorText}`);
-          }
-      
-          const result = await response.json();
-          console.log('Upload successful:', result);
-      
-        } catch (error) {
-          console.error('Error uploading documentation:', error);
+  
+        formDataForUpload.append('degree', formData.degree);
+        formDataForUpload.append('cv', formData.cv);
+  
+        response = await fetch(`/api/instructorFiles?email=${email}`, {
+          method: 'POST',
+          body: formDataForUpload,
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        console.log("doc responese: ", response);
+  
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Failed to upload documentation: ${errorText}`);
         }
       }
-      
-
-      console.log("respo: ", response)
-      if (!response.ok) {
-        throw new Error('Action failed');
-      }
-
+  
       const result = await response.json();
-      console.log("data: ", result);
+      console.log("doc data: ",result)
       if (result.success) {
         alert('Action completed successfully');
         handleClose();
       } else {
-        throw new Error(result.error);
+        throw new Error(result.error || 'Unknown error occurred');
       }
     } catch (err) {
-      setError(err.message);
+      setError(`Error: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
+  
+
+
+
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
@@ -363,95 +358,121 @@ const AccountSettings = () => {
 
             { (activeForm === 'updateProfile' || activeForm === 'upgradeProfile') && (
             <div>
-              <div>
-                <div className="text-center mb-6 relative">
-                  {profileImage ? (
-                    <img
-                      src={profileImage}
-                      alt="Profile"
-                      className="w-24 h-24 rounded-full mx-auto"
-                    />
-                  ) : (
-                    <label className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center mx-auto cursor-pointer">
-                      <FaCamera className="text-gray-500" size={30} />
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleImageUpdate}
-                      />
-                    </label>
-                  )}
-                  {/* Plus button for updating the profile image */}
-                  <label
-                    htmlFor="file-upload"
-                    className="absolute bottom-0 right-0 mb-1 mr-1 bg-white rounded-full p-1 shadow-md cursor-pointer"
-                  >
-                    <FaPlus size={20} className="text-gray-700" />
+            <div>
+              <div className="text-center mb-6 relative">
+                {profileImage ? (
+                  <img
+                    src={profileImage}
+                    alt="Profile"
+                    className="w-24 h-24 rounded-full mx-auto"
+                  />
+                ) : (
+                  <label className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center mx-auto cursor-pointer">
+                    <FaCamera className="text-gray-500" size={30} />
                     <input
-                      id="file-upload"
                       type="file"
                       accept="image/*"
                       className="hidden"
                       onChange={handleImageUpdate}
                     />
                   </label>
-                </div>
+                )}
+                {/* Plus button for updating the profile image */}
+                <label
+                  htmlFor="file-upload"
+                  className="absolute bottom-0 right-0 mb-1 mr-1 bg-white rounded-full p-1 shadow-md cursor-pointer"
+                >
+                  <FaPlus size={20} className="text-gray-700" />
+                  <input
+                    id="file-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleImageUpdate}
+                  />
+                </label>
               </div>
-              <form onSubmit={handleSubmit} className="space-y-4">
+            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="jobTitle" className="block mb-2">
+                  Job Title
+                </label>
                 <Input
-                  label="Job Title"
                   name="jobTitle"
                   value={formData.jobTitle}
                   onChange={handleChange}
                 />
+              </div>
+              <div>
+                <label htmlFor="fullName" className="block mb-2">
+                  Full Name
+                </label>
                 <Input
-                  label="Full Name"
                   name="fullName"
                   value={formData.fullName}
                   onChange={handleChange}
                 />
+              </div>
+              <div>
+                <label htmlFor="age" className="block mb-2">
+                  Age
+                </label>
                 <Input
-                  label="Age"
                   name="age"
                   type="number"
                   value={formData.age}
                   onChange={handleChange}
                 />
+              </div>
+              <div>
+                <label htmlFor="gender" className="block mb-2">
+                  Gender
+                </label>
                 <Input
-                  label="Gender"
                   name="gender"
                   value={formData.gender}
                   onChange={handleChange}
                 />
+              </div>
+              <div>
+                <label htmlFor="city" className="block mb-2">
+                  City
+                </label>
                 <Input
-                  label="City"
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
                 />
+              </div>
+              <div>
+                <label htmlFor="biography" className="block mb-2">
+                  Biography
+                </label>
                 <Input
-                  label="Biography"
                   name="biography"
                   value={formData.biography}
                   onChange={handleChange}
                   textarea
                 />
-                <Button type="submit" disabled={loading}>
-                  {loading ? 'Loading...' : 'Submit'}
-                </Button>
-              </form>
-            </div>
+              </div>
+              <Button type="submit" disabled={loading}>
+                {loading ? 'Loading...' : 'Submit'}
+              </Button>
+            </form>
+          </div>          
   )}
 
             {activeForm === 'uploadDocumentation' && (
               <form onSubmit={handleSubmit} className="space-y-4">
+                <Label>Degree</Label>
                 <Input
                   label="Upload Degree"
                   name="degree"
                   type="file"
                   onChange={handleChange}
                 />
+                <Label>CV</Label>
                 <Input
                   label="Upload CV"
                   name="cv"

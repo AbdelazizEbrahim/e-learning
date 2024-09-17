@@ -1,75 +1,86 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import jwt from 'jsonwebtoken';
 
 const CourseList = () => {
+    const router = useRouter();
+
     const [courses, setCourses] = useState([]);
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [addLoading, setAddLoading] = useState(false);
     const [editCourse, setEditCourse] = useState(null);
     const [dropdownOpen, setDropdownOpen] = useState(null);
+    const [isApproved, setIsApproved] = useState(false); 
     const [instructorName, setInstructorName] = useState('');
     const formRef = useRef(null);
     const dropdownRef = useRef(null);
 
     useEffect(() => {
-        const fetchInstructorAndCourses = async () => {
-            try {
-                const token = localStorage.getItem("authToken");
-                if (!token) {
-                    console.error("No token found");
-                    return;
-                }
-
-                const decoded = jwt.decode(token);
-                if (!decoded || !decoded.email) {
-                    console.error("Failed to decode token or email not found in token");
-                    return;
-                }
-
-                const email = decoded.email;
-
-                // Fetch the instructor profile based on the email
-                const profileResponse = await fetch(`/api/instructorProfile?email=${email}`);
-                if (!profileResponse.ok) {
-                    alert("Unable to fetch instructor profile data");
-                    return;
-                }
-
-                const profileData = await profileResponse.json();
-                if (!profileData) {
-                    console.error("Instructor profile not found or full name missing");
-                    return;
-                }
-
-                const fullName = profileData.data.fullName;
-                setInstructorName(fullName);
-
-                // Fetch courses based on the instructor's name
-                const courseResponse = await fetch(`/api/course?instructor=${encodeURIComponent(fullName)}`);
-                if (!courseResponse.ok) {
-                    console.log("Failed to fetch courses");
-                    setCourses([]); // Set an empty array in case of error
-                    return;
-                }
-
-                const courseData = await courseResponse.json();
-
-                if (Array.isArray(courseData)) {
-                    setCourses(courseData);
-                } else {
-                    setCourses([]); // If not an array, set an empty array
-                }
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                setCourses([]); // Set an empty array in case of error
-            } finally {
-                setLoading(false);
-            }
-        };
+       
+const fetchInstructorAndCourses = async () => {
+    try {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+            console.error("No token found");
+            return;
+        }
+  
+        const decoded = jwt.decode(token);
+        if (!decoded || !decoded.email) {
+            console.error("Failed to decode token or email not found in token");
+            return;
+        }
+  
+        const email = decoded.email;
+  
+        // Fetch the instructor profile based on the email
+        const profileResponse = await fetch(`/api/instructorProfile?email=${email}`);
+        if (!profileResponse.ok) {
+            alert("Unable to fetch instructor profile data");
+            return;
+        }
+  
+        const profileData = await profileResponse.json();
+        if (!profileData || !profileData.data) {
+            console.error("Instructor profile not found or full name missing");
+            return;
+        }
+  
+        const { fullName, isApproved } = profileData.data;
+        setInstructorName(fullName);
+        setIsApproved(isApproved); // Set the approval status
+  
+        if (!isApproved) {
+            setLoading(false); // Stop loading if the instructor is not approved
+            return;
+        }
+  
+        // Fetch courses based on the instructor's name if approved
+        const courseResponse = await fetch(`/api/course?instructor=${encodeURIComponent(fullName)}`);
+        if (!courseResponse.ok) {
+            console.log("Failed to fetch courses");
+            setCourses([]); // Set an empty array in case of error
+            return;
+        }
+  
+        const courseData = await courseResponse.json();
+  
+        if (Array.isArray(courseData)) {
+            setCourses(courseData);
+        } else {
+            setCourses([]); // If not an array, set an empty array
+        }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        setCourses([]); // Set an empty array in case of error
+    } finally {
+        setLoading(false);
+    }
+  };
 
         fetchInstructorAndCourses();
 
@@ -136,6 +147,16 @@ const CourseList = () => {
             setAddLoading(false);
         }
     };
+
+    const handleMaterialClick = async (courseCode) => {
+        try {
+          // Navigate to the material page with courseCode as a query parameter
+          router.push(`/instructor/myCourses/materials?courseCode=${encodeURIComponent(courseCode)}`);
+        } catch (error) {
+          console.error('Error navigating to material page:', error);
+        }
+      };
+      
 
     const handleUpdate = async (e) => {
         e.preventDefault();
@@ -218,6 +239,11 @@ const CourseList = () => {
         }
     };
 
+    
+if (!loading && !isApproved) {
+    return <p className="text-center text-red-500">You are not eligible. Please be approved first by the Admin.</p>;
+  }
+
     return (
         <div className="p-4 mr-72 ml-0">
             <div className="mb-4 flex justify-between items-center">
@@ -238,32 +264,39 @@ const CourseList = () => {
                         courses.map((course) => (
                             <div key={course.courseCode} className="relative bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col transition-transform duration-300 transform hover:scale-105">
                                 <div className="absolute top-2 right-2">
-                                <button
+                                    <button
                                     onClick={() => setDropdownOpen(dropdownOpen === course.courseCode ? null : course.courseCode)}
                                     className="fixed top-4 right-4 bg-gray-700 text-white py-1 px-3 rounded-full hover:bg-gray-600 transition-colors duration-300 z-50"
-                                >
+                                    >
                                     &#x22EE; {/* 3 dots vertical */}
-                                </button>
+                                    </button>
 
                                     {dropdownOpen === course.courseCode && (
-                                        <div ref={dropdownRef} className="absolute right-0 mt-2 w-32 bg-white text-black shadow-lg rounded-md z-10">
-                                            <button
-                                                onClick={() => {
-                                                    setEditCourse(course);
-                                                    setIsAddOpen(true);
-                                                }}
-                                                className="block w-full text-left px-4 py-2 hover:bg-gray-200"
-                                            >
-                                                Edit
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(course.courseCode)}
-                                                className="block w-full text-left px-4 py-2 hover:bg-gray-200"
-                                            >
-                                                Delete
-                                            </button>
-                                        </div>
+                                    <div ref={dropdownRef} className="absolute right-0 mt-2 w-32 bg-white text-black shadow-lg rounded-md z-10">
+                                        <button
+                                        onClick={() => {
+                                            setEditCourse(course);
+                                            setIsAddOpen(true);
+                                        }}
+                                        className="block w-full text-left px-4 py-2 hover:bg-gray-200"
+                                        >
+                                        Edit
+                                        </button>
+                                        <button
+                                        onClick={() => handleDelete(course.courseCode)}
+                                        className="block w-full text-left px-4 py-2 hover:bg-gray-200"
+                                        >
+                                        Delete
+                                        </button>
+                                        <button
+                                        onClick={() => handleMaterialClick(course.courseCode)} // Update this to use a function reference
+                                        className="block w-full text-left px-4 py-2 hover:bg-gray-200"
+                                        >
+                                        Materials
+                                        </button>
+                                    </div>
                                     )}
+
                                 </div>
                                 <div className="relative w-full h-32 mb-4">
                                     <Image
