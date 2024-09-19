@@ -393,7 +393,7 @@ const handleVideoUpload = async () => {
 
 
   
-          <ul className="mt-6 grid grid-cols-2 gap-4">
+          <ul className="mt-6 grid sm:grid-cols-1 md:grid-cols-1 gap-4">
            {documents.map((doc) => (
             <li key={doc._id} className=" relative border rounded-lg shadow-lg hover:shadow-lg transition-shadow duration-300">
               <a
@@ -540,9 +540,9 @@ const handleVideoUpload = async () => {
           )}
 
   
-          <ul className="mt-6 grid grid-cols-2 gap-4">
+          <ul className="mt-6 grid sm:grid-cols-1 md:grid-cols-1 gap-4">
             {videos.map((video) => (
-              <li key={video._id} className="relative border rounded-lg shadow-lg hover:shadow-lg transition-shadow duration-300">
+              <li key={video._id} className="relative border rounded-lg shadow-lg hover:shadow-lg transition-shadow duration-300 ">
                 <a
                   href={video.videoPath}
                   target="_blank"

@@ -26,6 +26,7 @@ const docSchema = new Schema({
   orderNumber: {
     type: Number,
     required: true,
+    unique: true,
   },
 }, {
   timestamps: true, 
