@@ -58,7 +58,6 @@ const AccountSettings = () => {
       setLoading(true);
       const token = localStorage.getItem('authToken');
       const decoded = jwt.decode(token);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       email = decoded?.email;
       if (token) {
         try {
@@ -94,20 +93,17 @@ const AccountSettings = () => {
   }, [activeForm]);
 
   const fetchProfileImage = async (email) => {
-    console.log("email to get:", email);
     try {
       const response = await fetch(`/api/photo?email=${email}`);
-      console.log("Response status:", response.status);
       
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       
       const data = await response.json();
-      console.log("Fetched image data:", data);
   
       if (data && data.data.imageUrl) {
-        setProfileImage(data.data.imageUrl); // Set the profile image URL
+        setProfileImage(data.data.imageUrl); 
       } else {
         console.warn('No imageUrl found in the response data');
       }
@@ -129,7 +125,6 @@ const AccountSettings = () => {
       const token = localStorage.getItem('authToken');
       const decoded = jwtDecode(token);
       const email = decoded.email;
-      console.log("email:", email);
       const response = await fetch(`/api/photo?email=${email}`, {
         method: 'POST',
         body: formData,
@@ -140,7 +135,7 @@ const AccountSettings = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setProfileImage(data.imageUrl); // Update profile image URL after upload
+        setProfileImage(data.imageUrl); 
       } else {
         console.error('Image upload failed');
       }
@@ -162,7 +157,6 @@ const AccountSettings = () => {
       const token = localStorage.getItem('authToken');
       const decoded = jwtDecode(token);
       const email = decoded.email;
-      console.log("email:", email);
       const response = await fetch(`/api/photo?email=${email}`, {
         method: 'PUT',
         body: formData,
@@ -227,7 +221,6 @@ const AccountSettings = () => {
       let response;
   
       if (activeForm === 'updateProfile') {
-        // Update profile form submission
         response = await fetch(`/api/instructorProfile?email=${email}`, {
           method: 'PUT',
           headers: {
@@ -237,7 +230,6 @@ const AccountSettings = () => {
           body: JSON.stringify({ ...formData }),
         });
       } else if (activeForm === 'upgradeProfile') {
-        // Upgrade profile form submission
         response = await fetch(`/api/instructorProfile`, {
           method: 'POST',
           headers: {
@@ -247,7 +239,6 @@ const AccountSettings = () => {
           body: JSON.stringify({ ...formData }),
         });
       } else if (activeForm === 'uploadDocumentation') {
-        // Documentation upload form
         const formDataForUpload = new FormData();
         if (!formData.degree || !formData.cv) {
           setError('Please upload both degree and CV files.');
@@ -265,8 +256,6 @@ const AccountSettings = () => {
             'Authorization': `Bearer ${token}`,
           },
         });
-
-        console.log("doc responese: ", response);
   
         if (!response.ok) {
           const errorText = await response.text();
@@ -275,7 +264,6 @@ const AccountSettings = () => {
       }
   
       const result = await response.json();
-      console.log("doc data: ",result)
       if (result.success) {
         alert('Action completed successfully');
         handleClose();

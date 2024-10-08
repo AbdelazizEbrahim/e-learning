@@ -39,11 +39,9 @@ export default function Dashboard() {
     try {
       const token = localStorage.getItem('authToken');
       if (token) {
-        // Token exists, redirect to enroll page
-        router.push(`/enroll?courseCode=${encodeURIComponent(courseCode)}`);
+         router.push(`/enroll?courseCode=${encodeURIComponent(courseCode)}`);
       } else {
-        // No token, redirect to sign-in page
-        router.push(`/signin?courseCode=${encodeURIComponent(courseCode)}`);
+         router.push(`/signin?courseCode=${encodeURIComponent(courseCode)}`);
       }
     } catch (error) {
       alert('An error occurred while redirecting.');
@@ -68,10 +66,10 @@ export default function Dashboard() {
                 >
                   <div className='relative mb-4'>
                     <Image
-                      src={course.imageUrl} // Fallback image if course.imageUrl is not available
+                      src={course.imageUrl}  
                       alt={course.courseTitle}
-                      width={640} // Set a fixed width
-                      height={240} // Set a fixed height
+                      width={640}  
+                      height={240}  
                       className='w-full h-40 object-cover rounded-md'
                     />
                   </div>

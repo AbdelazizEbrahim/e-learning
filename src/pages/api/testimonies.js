@@ -14,12 +14,13 @@ export default async (req, res) => {
         switch (req.method) {
             case 'POST': {
                 const { Name, testimony, imageUrl } = req.body;
-
+                console.log("info: ", Name);
                 if (!Name || !testimony || !imageUrl) {
                     return res.status(400).json({ message: 'All fields are required' });
                 }
 
                 const existingTestimony = await Testimony.findOne({ Name });
+                console.log("info: ", Name);
                 if (existingTestimony) {
                     return res.status(409).json({ message: 'Testimony with this name already exists' });
                 }

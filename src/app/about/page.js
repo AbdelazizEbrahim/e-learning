@@ -11,7 +11,7 @@ export default function About() {
       try {
         const response = await fetch('/api/aboutText');
         const data = await response.json();
-        const sortedData = data.data.sort((a, b) => b.priority - a.priority);
+        const sortedData = data.data.sort((a, b) => a.priority - b.priority);
         setAboutTexts(sortedData);
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -30,14 +30,10 @@ export default function About() {
   };
 
   return (
-    <div className="relative w-screen h-screen p-0 my-12 sm:my-20">
+    <div className="relative w-screen h-screen p-0 mt-96 md:mt-44 lg:mt-44">
       <main className="flex flex-col items-center justify-center w-full h-full p-0">
         <div className="bg-[#16202a] text-white p-6 rounded-lg shadow-lg w-full max-w-4xl sm:m-20 lg:m-12 ">
           <h1 className="text-3xl font-semibold mb-4 mt-12 text-center">About Us</h1>
-          <p className="text-lg mb-8 text-center w-full max-w-xl">
-            Welcome to our e-learning platform! We are passionate about providing high-quality education to learners worldwide.
-          </p>
-
           {aboutTexts.map((text, index) => (
             <section key={index} className="mb-8 flex flex-col items-center ">
               <h2 className="text-2xl font-semibold mb-4 text-center">{text.title}</h2>

@@ -14,7 +14,7 @@ const AdminDashboard = () => {
     const [selectedCard, setSelectedCard] = useState(null);
     const [listData, setListData] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [isOpen, setIsOpen] = useState(true); 
+    const [isOpen, setIsOpen] = useState(false); 
 
     useEffect(() => {
         const reloadedToken = localStorage.getItem('reloadedToken');
@@ -105,7 +105,7 @@ const AdminDashboard = () => {
     const renderList = () => {
         const renderCard = (item) => {
             return (
-                <div key={item.id || item.email} className='bg-gray-800 p-5 rounded-lg shadow-lg text-white'>
+                <div key={item.id || item.email} className='bg-gray-800 p-3 rounded-lg shadow-lg text-white'>
                     {selectedCard === 'Users' && (<><p className='text-gray-400 mb-2'>Email: {item.email}</p>
                                                  <p className='text-gray-400 mb-2'>Role: {item.role}</p></>)
                     }
@@ -142,7 +142,7 @@ const AdminDashboard = () => {
         };
 
         return (
-            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 mr-20'>
                 {listData.length > 0 ? listData.map(renderCard) : <p>No data available.</p>}
             </div>
         );
@@ -157,6 +157,7 @@ const AdminDashboard = () => {
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1,
+                barThickness: 20,
             },
         ],
     };
@@ -191,7 +192,7 @@ const AdminDashboard = () => {
             >
                 <HiChevronLeft className="h-6 w-6" />
             </button>
-            <div className={`flex flex-col space-y-4 ${isOpen ? 'block' : 'hidden'}`}>
+            <div className={`flex flex-col mt-12 space-y-4 ${isOpen ? 'block' : 'hidden'}`}>
                 <div
                 className='bg-white p-2 lg:p-4 shadow rounded-lg transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg cursor-pointer'
                 onClick={() => handleCardClick('Users')}
@@ -222,16 +223,16 @@ const AdminDashboard = () => {
                 </div>
             </div>
             </div>
-            <div className={`flex-1 mr-40 p-4 mt-0 justify-start ${isOpen ? 'lg:ml-12 -ml-12' : 'lg:ml-0 -ml-12'} transition-all duration-300`}>
+            <div className={`flex-1 mr-72 lg:mr-40 p-0 mt-0 justify-start ${isOpen ? 'lg:ml-12 -ml-20' : 'lg:ml-0 -ml-20'} transition-all duration-300`}>
                 {loading ? (
                     <p>Loading...</p>
                 ) : (
                     <div className='flex flex-col lg:flex-row'>
                         <div className='w-full lg:w-1/2 '>
                             <h1 className='text-2xl font-bold mb-4'>Admin Dashboard</h1>
-                            <Bar data={data} options={options} className='mb-8 h-48 w-24' />
+                            <Bar data={data} options={options} className='mb-8'  />
                         </div>
-                        <div className='w-full lg:w-1/2'>
+                        <div className='w-full lg:w-1/2 m-4 mr-12'>
                             {renderList()}
                         </div>
                     </div>

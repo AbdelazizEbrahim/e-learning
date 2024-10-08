@@ -103,7 +103,7 @@ const CourseList = () => {
 
     return (
         <div className="p-4 mr-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-5">
                 {/* Approved Courses Section */}
                 <div className="bg-gray-800 p-4 rounded-lg">
                     <h2 className="text-xl font-semibold mb-4 text-white">Approved Courses</h2>

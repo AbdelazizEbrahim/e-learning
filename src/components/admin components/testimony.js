@@ -201,7 +201,7 @@ const TestimonyList = () => {
                 </div>
             </div>
             {isAddOpen && (
-                <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
+                <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 ">
                     <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md h-auto max-h-[90vh] overflow-y-auto" ref={formRef}>
                         <h2 className="text-2xl font-bold text-gray-900 mb-4">{editTestimony ? 'Edit Testimony' : 'Add New Testimony'}</h2>
                         <form onSubmit={editTestimony ? handleUpdate : handleAdd}>

@@ -114,7 +114,7 @@ const NavBar = () => {
   };
 
   return (
-    <nav className="bg-gray-800 p-4 h-16">
+    <nav className="bg-gray-800 p-4 h-16 -ml-12 lg:ml-0">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo Button */}
         <Link href="/" className="text-white flex items-center">

@@ -7,8 +7,7 @@ export default function Admin() {
   
   return (
     <div className='relative w-screen h-screen mt-4 ml-32 mr-48'>
-      <RightSideBar/>
-      {/* <Sidebar/> */}
+      <RightSideBar className="hidden lg:block" />
       <AdminDashboard />
     </div>
   );

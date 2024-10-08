@@ -85,7 +85,7 @@ const RightSideBar = () => {
     }, [isOpen]);
 
     return (
-        <div className={`fixed top-16 right-0 bottom-16 bg-black p-4 transition-all duration-300 ${isOpen ? 'w-48' : 'w-10'} shadow-lg`}>
+        <div className={`hidden lg:block md:block fixed top-16 right-0 bottom-16 bg-black p-4 transition-all duration-300 ${isOpen ? 'w-48' : 'w-10'} shadow-lg`}>
             {/* Toggle Button */}
             <button
                 className={`absolute top-4 -left-3 p-2 bg-blue-500 text-white rounded-full ${isOpen ? 'hidden' : 'block'}`}

@@ -17,18 +17,15 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    console.log("best courses: ");
-    const fetchBestCourses = async () => {
+     const fetchBestCourses = async () => {
       setFetchingBestCourses(true);
       try {
         const response = await fetch('/api/course?isHome=true');
-        console.log("best courses: ", response);
-        if (!response.ok) {
+         if (!response.ok) {
           throw new Error('Failed to fetch best courses');
         }
         const data = await response.json();
-        console.log("best courses: ", data);
-        setBestCourses(data);
+         setBestCourses(data);
       } catch (error) {
         console.error('Error fetching best courses:', error);
       } finally {
@@ -43,8 +40,7 @@ export default function Home() {
           throw new Error('Failed to fetch partnerships');
         }
         const data = await response.json();
-        console.log("partners: ", data);
-        setPartnerships(data);
+         setPartnerships(data);
       } catch (error) {
         console.error('Error fetching partnerships:', error);
       }
@@ -57,8 +53,7 @@ export default function Home() {
           throw new Error('Failed to fetch testimonies');
         }
         const data = await response.json();
-        console.log("testimonies: ", data);
-        setTestimonies(data);
+         setTestimonies(data);
       } catch (error) {
         console.error('Error fetching testimonies:', error);
       }

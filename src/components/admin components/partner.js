@@ -189,7 +189,7 @@ const PartnerList = () => {
                 >
                     <div
                         ref={formRef}
-                        className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md relative"
+                        className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md max-h-[75vh] relative"
                     >
                         <button
                             onClick={closeAddForm}

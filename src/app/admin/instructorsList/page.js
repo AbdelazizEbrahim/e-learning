@@ -3,7 +3,7 @@ import InstructorDetail from '@/components/admin components/instructorDetail'
 
  const page = () => {
   return (
-    <div><InstructorDetail /></div>
+    <div className='overflow-hidden'><InstructorDetail /></div>
   );
 };
 

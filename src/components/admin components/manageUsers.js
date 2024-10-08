@@ -27,7 +27,6 @@ export default function ManageUser() {
   }, []);
 
   const handleAction = async (actionType, url, method, body) => {
-    // console.log(actionType, url, method, body);
     setLoading(true);
     try {
       const response = await fetch(url, {
@@ -37,13 +36,12 @@ export default function ManageUser() {
         },
         body: JSON.stringify(body),
       });
-      // console.log("Response: ",response);
       if (!response.ok) {
-      // console.log(`Failed to ${actionType}`);
+        throw new Error('Error occurred');
       } else {
-      alert(`${actionType.charAt(0).toUpperCase() + actionType.slice(1)} successfully!`);
-      setEmail('');
-      setRole('');
+        alert(`${actionType.charAt(0).toUpperCase() + actionType.slice(1)} successfully!`);
+        setEmail('');
+        setRole('');
       }
     } catch (error) {
       alert(error.message);
@@ -75,8 +73,8 @@ export default function ManageUser() {
   };
 
   return (
-    <div className='w-screen h-screen flex items-center justify-center bg-gray-100'>
-      <main className='p-6 w-64 max-w-xs bg-black rounded-lg'>
+    <div className='-mt-48 w-screen h-screen flex justify-center items-center bg-gray-100 overflow-hidden'>
+      <main className='p-6 bg-black rounded-lg max-w-xs w-full sm:w-3/4 md:w-1/2 lg:w-1/3'>
         <div className='grid grid-cols-2 gap-4 mb-4'>
           <button onClick={() => { setAction('changeRole'); setShowForm(true); }} className='bg-indigo-600 text-white py-2 px-4 rounded hover:bg-indigo-400 transition-colors duration-300'>
             Change Role
@@ -93,12 +91,14 @@ export default function ManageUser() {
         </div>
 
         {showForm && (
-          <div ref={formRef} className='fixed inset-0 flex items-center justify-center'>
-            <div className='bg-gray-800 bg-opacity-90 p-6 rounded-lg shadow-lg w-1/4 max-w-sm relative'>
+          <div ref={formRef} className='fixed inset-0 flex items-center justify-center -mt-44'>
+            <div className='bg-gray-800 bg-opacity-90 p-6 rounded-lg shadow-lg w-full sm:w-11/12 md:w-2/3 lg:w-1/3 relative'>
               <button onClick={() => { setShowForm(false); setAction(null); }} className='absolute top-2 right-2 text-red-600 text-xl'>
                 &times;
               </button>
-              <h1 className='text-2xl font-semibold mb-4 text-center text-white'>{action === 'changeRole' ? 'Change Role' : action === 'delete' ? 'Delete User' : action === 'removeInstructor' ? 'Remove Instructor' : 'Remove Student'}</h1>
+              <h1 className='text-2xl font-semibold mb-4 text-center text-white'>
+                {action === 'changeRole' ? 'Change Role' : action === 'delete' ? 'Delete User' : action === 'removeInstructor' ? 'Remove Instructor' : 'Remove Student'}
+              </h1>
 
               <form onSubmit={action === 'changeRole' ? handleChangeRole : action === 'delete' ? handleDeleteUser : action === 'removeInstructor' ? handleRemoveInstructor : handleRemoveStudent} className='space-y-4'>
                 <div className='flex flex-col'>

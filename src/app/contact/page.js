@@ -29,11 +29,9 @@ export default function Contact() {
       }
 
       const data = await res.json();
-      // console.log('Feedback submitted:', data);
-      alert('Feedback submitted successfully');
+       alert('Feedback submitted successfully');
 
-      // Clear form fields
-      setEmail('');
+       setEmail('');
       setMessage('');
     } catch (err) {
       console.error('Error:', err.message);

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import RightSideBar from '@/components/admin components/rightBar';
 
 const AboutPageForm = () => {
     const [isFormOpen, setIsFormOpen] = useState(false);
@@ -123,7 +124,9 @@ const AboutPageForm = () => {
     };
 
     return (
-        <div className="p-4">
+       <>
+        <RightSideBar />
+          <div className="p-4">
             <div className="mb-4 flex justify-between items-center">
                 <button
                     onClick={openForm}
@@ -199,7 +202,7 @@ const AboutPageForm = () => {
             )}
 
             {/* Display texts based on priority */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 mr-28">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 lg:mr-28">
             {aboutTexts.map((text) => (
                     <div key={text._id} className="bg-white shadow-md rounded-lg p-6">
                         <h3 className="text-lg font-bold mb-2">{text.title}</h3>
@@ -223,6 +226,7 @@ const AboutPageForm = () => {
                 ))}
             </div>
         </div>
+       </>
     );
 };
 
