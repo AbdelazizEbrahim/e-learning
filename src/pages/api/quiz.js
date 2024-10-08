@@ -5,32 +5,49 @@ export default async function handler(req, res) {
   await connect();
 
   const { method } = req;
-  const { id } = req.query;
+  const { id, taken } = req.query;
   const { courseCode } = req.query;
   console.log("course code: ", courseCode);
   
   switch (method) {
     // 1. Create a new quiz
     case 'POST':
-      if (courseCode){
+      if (courseCode) {
         try {
-          const { title, questions } = req.body;
-  
-          console.log("requist: ", req.body);
-  
+          const { questions } = req.body;
+    
+          // Log the request body and courseCode to ensure the request data is correct
+          console.log("Request body:", req.body);
+          console.log("Course code:", courseCode);
+    
+          // Create new quiz object
           const newQuiz = new Quiz({
             courseCode,
-            title,
             questions,
           });
-  
+    
+          // Save the new quiz to the database
           await newQuiz.save();
+    
+          // Log success message if the quiz is successfully created
+          console.log("Quiz created successfully:", newQuiz);
+    
+          // Return success response
           res.status(201).json({ message: 'Quiz created successfully', quiz: newQuiz });
         } catch (error) {
+          // Log detailed error message to the console
+          console.error("Error creating quiz:", error);
+    
+          // Return error response
           res.status(400).json({ message: 'Error creating quiz', error: error.message });
         }
-        break;
+      } else {
+        // Log a message if courseCode is not provided
+        console.error("Error: courseCode is missing");
+        res.status(400).json({ message: 'courseCode is required' });
       }
+      break;
+    
 
 
     // 2. Get all quizzes or get a specific quiz by ID
@@ -47,9 +64,10 @@ export default async function handler(req, res) {
             res.status(200).json({ quiz });
           } else {
             // If no ID, fetch all quizzes
-            console.log("course code1: ", courseCode);
+            console.log("course code11: ", courseCode);
             const quizzes = await Quiz.find({courseCode} );
-            res.status(200).json({ quizzes });
+            console.log("all quizes: ", quizzes);
+            res.status(200).json( quizzes );
           }
         } catch (error) {
           res.status(400).json({ message: 'Error fetching quizzes', error: error.message });
@@ -63,12 +81,25 @@ export default async function handler(req, res) {
         if (!id) {
           return res.status(400).json({ message: 'Quiz ID is required for updating' });
         }
-        const { title, questions } = req.body;
+        if(taken){
+          const updateQuiz = await Quiz.findByIdAndUpdate(
+            id, {taken}, {new:true}
+          ); 
+
+          if (!updateQuiz){
+            console.log("Quiz not found");
+            return Response.json("Quiz not found");
+          }
+
+          console.log("Quiz Updated");
+          return Response.json("Quiz successfully taken");
+        }
+        const { questions } = req.body;
 
         const updatedQuiz = await Quiz.findByIdAndUpdate(
           id,
-          { title, questions, updatedAt: Date.now() },
-          { new: true } // Return the updated quiz
+          { questions, updatedAt: Date.now() },
+          { new: true } 
         );
 
         if (!updatedQuiz) {

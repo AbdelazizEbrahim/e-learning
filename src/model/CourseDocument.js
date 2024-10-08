@@ -26,11 +26,14 @@ const docSchema = new Schema({
   orderNumber: {
     type: Number,
     required: true,
-    unique: true,
+    unique: false,
   },
 }, {
   timestamps: true, 
 });
+
+// Create a compound index to enforce the uniqueness of orderNumber combined with courseCode
+docSchema.index({ courseCode: 1, orderNumber: 1 }, { unique: true });
 
 const CourseDocument = mongoose.models.CourseDocument || mongoose.model('CourseDocument', docSchema);
 

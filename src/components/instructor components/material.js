@@ -188,7 +188,7 @@ const handleVideoUpload = async () => {
       }
   
       await fetchDocuments();
-      handleFormClose(); // Clear the form after successful update
+      handleFormClose();
     } catch (error) {
       console.error('Error updating document:', error);
     }

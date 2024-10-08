@@ -26,11 +26,12 @@ const videoSchema = new Schema({
   orderNumber: {
     type: Number,
     required: true,
-    unique: true,
   },
 }, {
   timestamps: true, 
 });
+
+videoSchema.index({ courseCode: 1, orderNumber: 1 }, { unique: true });
 
 const CourseVideo = mongoose.models.CourseVideo || mongoose.model('CourseVideo', videoSchema);
 

@@ -29,7 +29,7 @@ export default function Contact() {
       }
 
       const data = await res.json();
-      console.log('Feedback submitted:', data);
+      // console.log('Feedback submitted:', data);
       alert('Feedback submitted successfully');
 
       // Clear form fields
@@ -44,7 +44,7 @@ export default function Contact() {
   };
 
   return (
-    <div className='relative h-screen w-screen mt-0'>
+    <div className='relative h-120 w-screen mt-0 overflow-hidden'>
       <div className='relative w-full h-full'>
         <main className='flex flex-col items-center w-full h-full pt-2'>
           <div className='bg-[#16202a] text-white p-6 rounded-lg shadow-lg max-w-md mx-auto'>

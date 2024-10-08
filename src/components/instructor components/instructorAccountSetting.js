@@ -295,9 +295,9 @@ const AccountSettings = () => {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-semibold mb-4">Account Settings</h1>
+      <h1 className="text-2xl font-semibold mb-4 -ml-16">Account Settings</h1>
 
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 -ml-24">
         <Button onClick={() => handleButtonClick('viewProfile')} className="bg-blue-500 text-white" disabled={loading}>
           {loading ? 'Loading...' : 'View Profile'}
         </Button>
@@ -312,9 +312,10 @@ const AccountSettings = () => {
         </Button>
       </div>
 
+
       {activeForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out overflow-y-auto ">
-          <div className="bg-gray-100 p-6 rounded-lg shadow-lg w-full max-w-lg relative modal-content overflow-y-auto max-h-[90vh]">
+          <div className="bg-gray-100 p-6 rounded-lg shadow-lg w-full max-w-lg relative modal-content overflow-y-auto max-h-[80vh]">
             <h2 className="text-xl font-semibold mb-4">
               {activeForm === 'viewProfile' && 'View Profile'}
               {activeForm === 'updateProfile' && 'Update Profile'}

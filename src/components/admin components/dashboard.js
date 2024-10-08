@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Bar } from 'react-chartjs-2'; // Chart.js library for bar graph
-import 'chart.js/auto'; // Chart.js auto import for the required components
+import { Bar } from 'react-chartjs-2'; 
+import 'chart.js/auto';
 import Link from 'next/link';
 import { HiChevronLeft, HiChevronRight } from 'react-icons/hi';
 
@@ -14,14 +14,12 @@ const AdminDashboard = () => {
     const [selectedCard, setSelectedCard] = useState(null);
     const [listData, setListData] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [isOpen, setIsOpen] = useState(true); // Sidebar state
+    const [isOpen, setIsOpen] = useState(true); 
 
     useEffect(() => {
-        // Check if the "reloadedToken" is found in localStorage
         const reloadedToken = localStorage.getItem('reloadedToken');
         
         if (!reloadedToken) {
-          // If "reloadedToken" is not found, reload the page
           localStorage.setItem('reloadedToken', 'true');
           window.location.reload();
         }
@@ -32,27 +30,21 @@ const AdminDashboard = () => {
             try {
                 setLoading(true);
 
-                // Fetch data from all endpoints
                 const userResponse = await fetch('/api/auth/signup', { method: 'GET' });
                 const studentResponse = await fetch('/api/userProfile', { method: 'GET' });
                 const courseResponse = await fetch('/api/course', { method: 'GET' });
                 const instructorResponse = await fetch('/api/instructorProfile', { method: 'GET' });
 
-                // Check if the responses are successful
                 if (!userResponse.ok) throw new Error('Failed to fetch users');
                 if (!studentResponse.ok) throw new Error('Failed to fetch students');
                 if (!courseResponse.ok) throw new Error('Failed to fetch courses');
                 if (!instructorResponse.ok) throw new Error('Failed to fetch instructors');
 
-                // Parse JSON data from responses
                 const userData = await userResponse.json();
                 const studentData = await studentResponse.json();
-                console.log("student: ", studentData)
                 const courseData = await courseResponse.json();
-                console.log("course: ", courseData)
                 const instructorData = await instructorResponse.json();
 
-                // Update state with counts
                 setUserCount(Array.isArray(userData.users) ? userData.users.length : 0);
                 setStudentCount(Array.isArray(studentData) ? studentData.length : 0);
                 setCourseCount(Array.isArray(courseData) ? courseData.length : 0);
@@ -74,7 +66,6 @@ const AdminDashboard = () => {
             setLoading(true);
             let listResponse;
 
-            // Fetch data based on selected card
             switch (cardType) {
                 case 'Users':
                     listResponse = await fetch('/api/auth/signup', { method: 'GET' });
@@ -94,7 +85,6 @@ const AdminDashboard = () => {
 
             const responseData = await listResponse.json();
 
-            // Process response data based on card type
             if (cardType === 'Users') {
                 setListData(Array.isArray(responseData.users) ? responseData.users : []);
             } else if (cardType === 'Students') {
@@ -158,7 +148,6 @@ const AdminDashboard = () => {
         );
     };
 
-    // Data for the bar chart
     const data = {
         labels: ['Users', 'Students', 'Courses', 'Instructors'],
         datasets: [
@@ -172,7 +161,6 @@ const AdminDashboard = () => {
         ],
     };
 
-    // Options for the bar chart
     const options = {
         scales: {
             x: {
@@ -189,72 +177,65 @@ const AdminDashboard = () => {
     };
 
     return (
-        <div className='flex'>
-            {/* Left Sidebar with Cards */}
-            <div className={`fixed top-16 left-0 bottom-16 bg-gray-900 p-4 transition-all duration-300 ${isOpen ? 'w-44' : 'w-12'} shadow-lg`}>
-                {/* Toggle Button */}
-                <button
-                    className={`absolute top-4 right-0 p-2 bg-blue-500 text-white rounded-full ${isOpen ? 'hidden' : 'block'}`}
-                    onClick={toggleSidebar}
+        <div className='flex min-w-32'>
+            <div className={`fixed top-16 left-0 bottom-16 bg-gray-900 p-2 transition-all duration-300 ${isOpen ? 'lg:w-44 w-24' : 'w-12'} shadow-lg`}>
+            <button
+                className={`absolute top-4 right-0 p-2 bg-blue-500 text-white rounded-full ${isOpen ? 'hidden' : 'block'}`}
+                onClick={toggleSidebar}
+            >
+                <HiChevronRight className="h-6 w-6" />
+            </button>
+            <button
+                className={`absolute top-4 left-0 p-2 bg-blue-500 text-white rounded-full ${isOpen ? 'block' : 'hidden'}`}
+                onClick={toggleSidebar}
+            >
+                <HiChevronLeft className="h-6 w-6" />
+            </button>
+            <div className={`flex flex-col space-y-4 ${isOpen ? 'block' : 'hidden'}`}>
+                <div
+                className='bg-white p-2 lg:p-4 shadow rounded-lg transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg cursor-pointer'
+                onClick={() => handleCardClick('Users')}
                 >
-                    <HiChevronRight className="h-6 w-6" />
-                </button>
-                <button
-                    className={`absolute top-4 left-0 p-2 bg-blue-500 text-white rounded-full ${isOpen ? 'block' : 'hidden'}`}
-                    onClick={toggleSidebar}
+                <h3 className='text-small lg:text-xl lg:font-semibold '>Users</h3>
+                <p className='text-2xl font-bold'>{userCount}</p>
+                </div>
+                <div
+                className='p-2 lg:p-4 bg-white shadow rounded-lg transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg cursor-pointer'
+                onClick={() => handleCardClick('Students')}
                 >
-                    <HiChevronLeft className="h-6 w-6" />
-                </button>
-
-                {/* Cards Section */}
-                <div className={`flex flex-col space-y-4 ${isOpen ? 'block' : 'hidden'}`}>
-                    <div
-                        className='bg-white p-4 shadow rounded-lg transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg cursor-pointer'
-                        onClick={() => handleCardClick('Users')}
-                    >
-                        <h3 className='text-xl font-semibold'>Users</h3>
-                        <p className='text-2xl font-bold'>{userCount}</p>
-                    </div>
-                    <div
-                        className='bg-white p-4 shadow rounded-lg transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg cursor-pointer'
-                        onClick={() => handleCardClick('Students')}
-                    >
-                        <h3 className='text-xl font-semibold'>Students</h3>
-                        <p className='text-2xl font-bold'>{studentCount}</p>
-                    </div>
-                    <div
-                        className='bg-white p-4 shadow rounded-lg transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg cursor-pointer'
-                        onClick={() => handleCardClick('Courses')}
-                    >
-                        <h3 className='text-xl font-semibold'>Courses</h3>
-                        <p className='text-2xl font-bold'>{courseCount}</p>
-                    </div>
-                    <div
-                        className='bg-white p-4 shadow rounded-lg transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg cursor-pointer'
-                        onClick={() => handleCardClick('Instructors')}
-                    >
-                        <h3 className='text-xl font-semibold'>Instructors</h3>
-                        <p className='text-2xl font-bold'>{instructorCount}</p>
-                    </div>
+                <h3 className='text-small lg:text-xl -ml-2 font-semibold'>Student</h3>
+                <p className='text-2xl font-bold'>{studentCount}</p>
+                </div>
+                <div
+                className='p-2 lg:p-4 bg-white shadow rounded-lg transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg cursor-pointer'
+                onClick={() => handleCardClick('Courses')}
+                >
+                <h3 className='text-small lg:text-xl font-semibold'>Courses</h3>
+                <p className='text-2xl font-bold'>{courseCount}</p>
+                </div>
+                <div
+                className='p-2 lg:p-4 bg-white shadow rounded-lg transition-transform duration-300 ease-in-out hover:scale-105 hover:shadow-lg cursor-pointer'
+                onClick={() => handleCardClick('Instructors')}
+                >
+                <h3 className='text-small lg:text-xl -ml-2 font-semibold'>Instructor</h3>
+                <p className='text-2xl font-bold'>{instructorCount}</p>
                 </div>
             </div>
-
-            {/* Main Content Area */}
-            <div className={`flex-1 mr-40 p-4 mt-0 justify-start ${isOpen ? 'ml-12' : 'ml-0'} transition-all duration-300`}>
+            </div>
+            <div className={`flex-1 mr-40 p-4 mt-0 justify-start ${isOpen ? 'lg:ml-12 -ml-12' : 'lg:ml-0 -ml-12'} transition-all duration-300`}>
                 {loading ? (
                     <p>Loading...</p>
                 ) : (
-                    <div className='flex'>
-                        <div className='w-1/2 pr-4'>
+                    <div className='flex flex-col lg:flex-row'>
+                        <div className='w-full lg:w-1/2 '>
                             <h1 className='text-2xl font-bold mb-4'>Admin Dashboard</h1>
-                            {/* Display the chart */}
-                            <Bar data={data} options={options} className='mb-8' />
+                            <Bar data={data} options={options} className='mb-8 h-48 w-24' />
                         </div>
-                        <div className='w-1/2'>
-                            {/* Display the list data */}
+                        <div className='w-full lg:w-1/2'>
                             {renderList()}
                         </div>
                     </div>
+
                 )}
             </div>
         </div>

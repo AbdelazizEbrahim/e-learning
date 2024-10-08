@@ -12,7 +12,7 @@ const RightSideBar = () => {
         setIsOpen(prevIsOpen => {
             const newIsOpen = !prevIsOpen;
             if (newIsOpen) {
-                console.log('Sidebar opened, fetching messages...');
+                // console.log('Sidebar opened, fetching messages...');
                 fetchMessages();
             }
             return newIsOpen;
@@ -20,10 +20,10 @@ const RightSideBar = () => {
     };
 
     const fetchMessages = async () => {
-        console.log('Starting to fetch messages...');
+        // console.log('Starting to fetch messages...');
         try {
             const res = await fetch('/api/feedback?limit=3&read=false');
-            console.log('Fetch response:', res);
+            // console.log('Fetch response:', res);
 
             if (!res.ok) {
                 console.error('Failed to fetch messages, status:', res.statusText);
@@ -31,7 +31,7 @@ const RightSideBar = () => {
             }
 
             const data = await res.json();
-            console.log('Fetched data:', data);
+            // console.log('Fetched data:', data);
 
             if (data.success) {
                 setMessages(data.data); // Set messages from data
@@ -46,7 +46,7 @@ const RightSideBar = () => {
     };
 
     const markAsRead = async (email) => {
-        console.log('Marking message as read for email:', email);
+        // console.log('Marking message as read for email:', email);
         setLoadingEmail(email); // Set loading for the specific email
         try {
             const res = await fetch(`/api/feedback`, {
@@ -57,7 +57,7 @@ const RightSideBar = () => {
                 body: JSON.stringify({ email, read: true }), // Update based on email
             });
 
-            console.log('Mark as read response:', res);
+            // console.log('Mark as read response:', res);
 
             if (!res.ok) {
                 console.error('Failed to mark message as read, status:', res.statusText);
@@ -67,7 +67,7 @@ const RightSideBar = () => {
             // Immediately update the UI by removing the read message
             setMessages(prevMessages => {
                 const updatedMessages = prevMessages.filter(msg => msg.email !== email);
-                console.log('Updated messages after read:', updatedMessages);
+                // console.log('Updated messages after read:', updatedMessages);
                 return updatedMessages;
             });
         } catch (error) {
@@ -79,7 +79,7 @@ const RightSideBar = () => {
 
     useEffect(() => {
         if (isOpen) {
-            console.log('Sidebar is open, fetching messages...');
+            // console.log('Sidebar is open, fetching messages...');
             fetchMessages();
         }
     }, [isOpen]);

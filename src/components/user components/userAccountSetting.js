@@ -315,23 +315,23 @@ const AccountSettings = () => {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-semibold mb-4">Account Settings</h1>
-
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <Button onClick={() => handleButtonClick('viewProfile')} className="bg-blue-500 text-white" disabled={loading}>
+      <h1 className="text-2xl font-semibold mb-4 -ml-12">Account Settings</h1>
+      <div className="gap-4 mb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 -ml-20">
+        <Button onClick={() => handleButtonClick('viewProfile')} className="bg-blue-500 text-white w-60" disabled={loading}>
           {loading ? 'Loading...' : 'View Profile'}
         </Button>
-        <Button onClick={() => handleButtonClick('updateProfile')} className="bg-green-500 text-white" disabled={loading}>
+        <Button onClick={() => handleButtonClick('updateProfile')} className="bg-green-500 text-white w-60" disabled={loading}>
           {loading ? 'Loading...' : 'Update Profile'}
         </Button>
-        <Button onClick={() => handleButtonClick('createAccount')} className="bg-purple-500 text-white" disabled={loading}>
+        <Button onClick={() => handleButtonClick('createAccount')} className="bg-purple-500 text-white w-60" disabled={loading}>
           {loading ? 'Loading...' : 'Upgrade Account'}
         </Button>
       </div>
 
+
       {activeForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="form-container bg-gray-100 p-6 rounded-lg shadow-lg w-full max-w-lg relative overflow-y-auto max-h-[90vh]">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 m-4 ">
+          <div className="form-container bg-gray-100 p-6 rounded-lg shadow-lg w-full max-w-lg relative overflow-y-auto max-h-[78vh]">
             <h2 className="text-xl font-semibold mb-4">
               {activeForm === 'viewProfile' && 'View Profile'}
               {activeForm === 'updateProfile' && 'Update Profile'}
@@ -341,8 +341,8 @@ const AccountSettings = () => {
             </h2>
 
             {activeForm === 'viewProfile' && (
-              <div>
-                <div className="text-center mb-6">
+              <div className=''>
+                <div className="text-center mb-6 ">
                   {profileImage ? (
                     <img
                       src={profileImage}
@@ -374,45 +374,45 @@ const AccountSettings = () => {
             )}
 
             {activeForm === 'updateProfile' && (
-              <div>
-              <div>
-                <div>
-        <div className="text-center mb-6 relative">
-          {profileImage ? (
-            <img
-              src={profileImage}
-              alt="Profile"
-              className="w-24 h-24 rounded-full mx-auto"
-            />
-          ) : (
-            <label className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center mx-auto cursor-pointer">
-              <FaCamera className="text-gray-500" size={30} />
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleImageUpdate}
-              />
-            </label>
-          )}
-          {/* Plus button for updating the profile image */}
-          <label
-            htmlFor="file-upload"
-            className="absolute bottom-0 right-0 mb-1 mr-1 bg-white rounded-full p-1 shadow-md cursor-pointer"
-          >
-            <FaPlus size={20} className="text-gray-700" />
-            <input
-              id="file-upload"
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleImageUpdate}
-            />
-          </label>
-        </div>
-      </div>
+              <div className=''>
+              <div className=''>
+                <div className=''>
+                  <div className="text-center mb-6 relative ">
+                    {profileImage ? (
+                      <img
+                        src={profileImage}
+                        alt="Profile"
+                        className="w-24 h-24 rounded-full mx-auto"
+                      />
+                    ) : (
+                      <label className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center mx-auto cursor-pointer">
+                        <FaCamera className="text-gray-500" size={30} />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={handleImageUpdate}
+                        />
+                      </label>
+                    )}
+                    {/* Plus button for updating the profile image */}
+                    <label
+                      htmlFor="file-upload"
+                      className="absolute bottom-0 right-0 mb-1 mr-1 bg-white rounded-full p-1 shadow-md cursor-pointer"
+                    >
+                      <FaPlus size={20} className="text-gray-700" />
+                      <input
+                        id="file-upload"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageUpdate}
+                      />
+                    </label>
+                  </div>
+                </div>
               </div>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4 ">
                 <label className="block">
                   <span className="text-gray-700">Full Name</span>
                   <Input

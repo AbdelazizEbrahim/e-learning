@@ -150,7 +150,6 @@ const fetchInstructorAndCourses = async () => {
 
     const handleMaterialClick = async (courseCode) => {
         try {
-          // Navigate to the material page with courseCode as a query parameter
           router.push(`/instructor/myCourses/materials?courseCode=${encodeURIComponent(courseCode)}`);
         } catch (error) {
           console.error('Error navigating to material page:', error);
@@ -245,7 +244,7 @@ if (!loading && !isApproved) {
   }
 
     return (
-        <div className="p-4 mr-72 ml-0">
+        <div className="p-4 mr-40 -ml-28 ml-0">
             <div className="mb-4 flex justify-between items-center">
                 <button
                     onClick={openAddForm}
@@ -255,7 +254,7 @@ if (!loading && !isApproved) {
                 </button>
             </div>
             <hr className="my-4 border-gray-600" />
-            <div className="bg-gray-900 p-6 rounded-lg shadow-lg">
+            <div className="bg-gray-900 p-6 rounded-lg shadow-lg sm:m-0">
                 <h2 className="text-2xl font-bold text-gray-300 mb-4">My Courses</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {loading ? (
@@ -321,7 +320,7 @@ if (!loading && !isApproved) {
             </div>
             {isAddOpen && (
                 <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
-                    <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md h-auto max-h-[90vh] overflow-y-auto" ref={formRef}>
+                    <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md h-auto max-h-[80vh] overflow-y-auto" ref={formRef}>
                         <h2 className="text-2xl font-bold text-gray-900 mb-4">{editCourse ? 'Edit Course' : 'Add New Course'}</h2>
                         <form onSubmit={editCourse ? handleUpdate : handleAdd}>
                             <div className="mb-4">

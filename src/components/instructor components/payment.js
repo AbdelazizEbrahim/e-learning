@@ -124,9 +124,9 @@ const PaymentPage = () => {
     };
 
     return (
-        <div className="container mx-auto p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="container mx-auto p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 ">
             {/* Left card: List of courses */}
-            <div className="bg-white p-6 rounded-lg shadow-lg ml-12">
+            <div className="bg-white p-6 rounded-lg shadow-lg lg:ml-12">
                 <h2 className="text-2xl font-bold mb-4">Your Courses</h2>
                 {error && <p className="text-red-500">{error}</p>}
                 {courses.length > 0 ? (
@@ -169,7 +169,7 @@ const PaymentPage = () => {
             </div>
 
             {/* Right card: User profile */}
-            <div className="bg-white p-6 rounded-lg shadow-lg mr-12">
+            <div className="bg-white p-6 rounded-lg shadow-lg  lg:mr-12">
                 <h2 className="text-2xl font-bold mb-4">Your Profile</h2>
                 <form>
                     <div className="mb-4">

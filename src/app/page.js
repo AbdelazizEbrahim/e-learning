@@ -17,14 +17,17 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
+    console.log("best courses: ");
     const fetchBestCourses = async () => {
       setFetchingBestCourses(true);
       try {
         const response = await fetch('/api/course?isHome=true');
+        console.log("best courses: ", response);
         if (!response.ok) {
           throw new Error('Failed to fetch best courses');
         }
         const data = await response.json();
+        console.log("best courses: ", data);
         setBestCourses(data);
       } catch (error) {
         console.error('Error fetching best courses:', error);
@@ -35,11 +38,12 @@ export default function Home() {
 
     const fetchPartnerships = async () => {
       try {
-        const response = await fetch('/api/partners?sort=-createdAt&limit=5');
+        const response = await fetch('/api/partners?sort=-createdAt&limit=4');
         if (!response.ok) {
           throw new Error('Failed to fetch partnerships');
         }
         const data = await response.json();
+        console.log("partners: ", data);
         setPartnerships(data);
       } catch (error) {
         console.error('Error fetching partnerships:', error);
@@ -53,6 +57,7 @@ export default function Home() {
           throw new Error('Failed to fetch testimonies');
         }
         const data = await response.json();
+        console.log("testimonies: ", data);
         setTestimonies(data);
       } catch (error) {
         console.error('Error fetching testimonies:', error);
@@ -67,10 +72,8 @@ export default function Home() {
   const handleEnroll = (courseCode) => {
     const token = localStorage.getItem('authToken');
     if (token) {
-      // Redirect to the enroll page with the course code as a query parameter
       router.push(`/user/enroll?courseCode=${encodeURIComponent(courseCode)}`);
     } else {
-      // Redirect to the sign-in page
       router.push('/signin');
     }
   };
@@ -85,14 +88,14 @@ export default function Home() {
         {/* Best Courses Section */}
         <hr className='my-8 border-gray-600 border-2' />
         <h2 className='text-2xl font-semibold mb-4 text-black'>Best Courses</h2>
-        <div className='flex flex-wrap gap-4'>
+        <div className='flex flex-wrap gap-4 grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2'>
           {fetchingBestCourses ? (
             <p className='text-black'>Loading best courses...</p>
           ) : (
             bestCourses.map((course) => (
               <div
                 key={course._id}
-                className='bg-gray-800 p-6 rounded-lg shadow-lg flex-shrink-0 w-80 mb-5'
+                className='bg-gray-800 p-6 rounded-lg shadow-lg flex-shrink-0 w-80 mb-5 '
               >
                 <div className='relative mb-4'>
                   <Image
@@ -124,7 +127,7 @@ export default function Home() {
         {/* Partnership Section */}
         <hr className='my-8 border-gray-600 border-2' />
         <h2 className='text-2xl font-semibold mb-4 text-black'>Partners</h2>
-        <div className='flex justify-center flex-wrap gap-6'>
+        <div className='flex justify-center flex-wrap gap-6 '>
           {partnerships.map((partner) => (
             <div key={partner._id} className=' transition-timing-function: linear flex flex-col items-center p-6 bg-gray-800 rounded-lg shadow-lg w-56'>
               <Image
@@ -142,7 +145,7 @@ export default function Home() {
         {/* Testimony Section */}
         <hr className='my-8 border-gray-600 border-2' />
         <h2 className='text-2xl font-semibold mb-5 text-black'>Testimonies</h2>
-        <div className='flex justify-center flex-wrap gap-6'>
+        <div className='flex justify-center flex-wrap gap-6 '>
           {testimonies.map((testimony) => (
             <div key={testimony._id} className='flex flex-col items-center p-6 bg-gray-800 rounded-lg shadow-lg w-56'>
               <div className='flex-shrink-0 mr-4'>

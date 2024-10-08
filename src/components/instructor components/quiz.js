@@ -34,10 +34,10 @@ const QuizPage = () => {
     try {
       const response = await fetch(`/api/quiz?courseCode=${courseCode}`);
       const data = await response.json();
-      setQuizzes(data.quizzes || []);
+      setQuizzes(data || []);
 
       console.log("response: ", response)
-      console.log("data: ", data);
+      console.log("quizzzz data: ", data);
     } catch (error) {
       console.error('Error fetching quizzes:', error);
     }
@@ -95,7 +95,6 @@ const QuizPage = () => {
     try {
       if (editMode) {
         console.log("current quiz ID: ", currentQuizId);
-        // Update the existing quiz
         const response = await fetch(`/api/quiz?id=${currentQuizId}`, {
           method: 'PUT',
           body: JSON.stringify({ questions }),
@@ -105,12 +104,13 @@ const QuizPage = () => {
         });
   
         if (response.ok) {
-          fetchQuizzes(); // Refresh quizzes list
-          resetForm(); // Reset the form after updating
+          fetchQuizzes(); 
+          resetForm(); 
         }
       } else {
         // Create a new quiz
         console.log("courseCode: ", courseCode);
+        console.log("Quiz detail: ", questions);
         const response = await fetch(`/api/quiz?courseCode=${courseCode}`, {
           method: 'POST',
           body: JSON.stringify({ questions }),
@@ -120,8 +120,11 @@ const QuizPage = () => {
         });
   
         if (response.ok) {
-          fetchQuizzes(); // Refresh quizzes list
-          resetForm(); // Reset the form after creating
+          fetchQuizzes(); 
+          resetForm(); 
+          console.log("resonse ", response);
+          const data = response.json();
+          console.log("data ", data.quiz);
         }
       }
     } catch (error) {
@@ -256,7 +259,7 @@ const QuizPage = () => {
           </button>
 
           <button
-  onClick={handleSubmit}
+            onClick={handleSubmit}
             className="bg-blue-500 text-white px-4 py-2 rounded"
             disabled={isLoading}
           >

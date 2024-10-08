@@ -4,19 +4,21 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import jwt from 'jsonwebtoken';
 import { useRouter } from 'next/navigation';
+import { FaBars } from 'react-icons/fa';
 
 const NavBar = () => {
   const [userRole, setUserRole] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [profileImages, setProfileImages] = useState({
-    user: 'https://example.com/user-icon.png',  // Replace with actual URL
-    admin: 'https://example.com/admin-icon.png', // Replace with actual URL
-    instructor: 'https://example.com/instructor-icon.png' // Replace with actual URL
+    user: 'https://example.com/user-icon.png',  
+    admin: 'https://example.com/admin-icon.png', 
+    instructor: 'https://example.com/instructor-icon.png' 
   });
   const router = useRouter();
   const dropdownRef = useRef(null);
   const [dropdownHovered, setDropdownHovered] = useState(false);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
@@ -29,20 +31,24 @@ const NavBar = () => {
     router.push('/');
   };
 
+  const toggleMobileNav = () => {
+    setIsMobileNavOpen(!isMobileNavOpen);
+  };
+
   const fetchCartCount = async (email) => {
     try {
       const response = await fetch(`/api/cart?userEmail=${email}&paymentStatus=Pending`);
       if (!response.ok) {
-        setCartCount(0); // Ensure a default value on failure
+        setCartCount(0); 
         return;
       }
 
       const data = await response.json();
-      const count = data.length; // Adjust based on your API response structure
+      const count = data.length; 
       setCartCount(count || 0);
     } catch (error) {
       console.error('Error fetching cart notification count:', error);
-      setCartCount(0); // Ensure a default value on error
+      setCartCount(0); 
     }
   };
 
@@ -55,7 +61,6 @@ const NavBar = () => {
           return;
         }
         const data = await response.json();
-        console.log("data: ", data.data)
         if (role === 'admin') {
           setProfileImages(prevState => ({ ...prevState, admin: data.data.imageUrl }));
         } else if (role === 'user') {
@@ -121,11 +126,21 @@ const NavBar = () => {
 
         {/* Right Links */}
         <div className="flex items-center space-x-4 relative">
-          <Link href="/" className="text-white hover:bg-gray-700 px-3 py-2 rounded">Home</Link>
-          <Link href="/about" className="text-white hover:bg-gray-700 px-3 py-2 rounded">About</Link>
-          <Link href="/contact" className="text-white hover:bg-gray-700 px-3 py-2 rounded">Contact</Link>
-          <Link href="/courses" className="text-white hover:bg-gray-700 px-3 py-2 rounded">Courses</Link>
-
+          <div className="hidden lg:flex space-x-4">
+            <Link href="/" className="text-white hover:bg-gray-700 px-3 py-2 rounded">Home</Link>
+            <Link href="/about" className="text-white hover:bg-gray-700 px-3 py-2 rounded">About</Link>
+            <Link href="/contact" className="text-white hover:bg-gray-700 px-3 py-2 rounded">Contact</Link>
+            <Link href="/courses" className="text-white hover:bg-gray-700 px-3 py-2 rounded">Courses</Link>
+          </div>
+          {/* Mobile navigation menu */}
+          {isMobileNavOpen && (
+            <div className="lg:hidden flex flex-col space-y-2 mt-4 bg-black w-screen z-50 -ml-32">
+              <Link href="/" className="text-white bg-gray-700 px-3 py-2 rounded">Home</Link>
+              <Link href="/about" className="text-white bg-gray-700 px-3 py-2 rounded">About</Link>
+              <Link href="/contact" className="text-white bg-gray-700 px-3 py-2 rounded">Contact</Link>
+              <Link href="/courses" className="text-white bg-gray-700 px-3 py-2 rounded">Courses</Link>
+            </div>
+          )}
           {/* Conditional Rendering for Admin */}
           {userRole === 'admin' ? (
             <div
@@ -257,6 +272,10 @@ const NavBar = () => {
           ) : (
             <Link href="/signin" className="text-white hover:bg-gray-700 px-3 py-2 rounded">Sign In/Register</Link>
           )}
+           {/* Hamburger menu for smaller screens */}
+            <div className="lg:hidden">
+              <FaBars size={30} className="text-white" onClick={toggleMobileNav} />
+            </div>
         </div>
       </div>
     </nav>

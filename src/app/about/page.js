@@ -1,7 +1,6 @@
-'use client'
+'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 
 export default function About() {
   const [aboutTexts, setAboutTexts] = useState([]);
@@ -24,37 +23,34 @@ export default function About() {
 
   const handleContactClick = () => {
     setLoading(true);
-    // Simulate a network request or navigation delay
     setTimeout(() => {
       window.location.href = '/contact';
-      setLoading(false); // Reset loading state if necessary
-    }, 1000); // Adjust the timeout as needed
+      setLoading(false);
+    }, 1000);
   };
 
   return (
-    <div className='relative w-screen h-screen p-0 mt-12'>
-      <main className='flex flex-col items-center justify-center w-full h-full p-0'>
-        <div className='bg-[#16202a] text-white p-6 rounded-lg shadow-lg max-w-4xl mx-auto mb-0'>
-          <h1 className='text-3xl font-semibold mb-4 text-center'>About Us</h1>
-          <p className='text-lg mb-8 text-center w-3/4 mx-auto'>
+    <div className="relative w-screen h-screen p-0 my-12 sm:my-20">
+      <main className="flex flex-col items-center justify-center w-full h-full p-0">
+        <div className="bg-[#16202a] text-white p-6 rounded-lg shadow-lg w-full max-w-4xl sm:m-20 lg:m-12 ">
+          <h1 className="text-3xl font-semibold mb-4 mt-12 text-center">About Us</h1>
+          <p className="text-lg mb-8 text-center w-full max-w-xl">
             Welcome to our e-learning platform! We are passionate about providing high-quality education to learners worldwide.
           </p>
 
           {aboutTexts.map((text, index) => (
-            <section key={index} className='mb-8 flex flex-col items-center'>
-              <h2 className='text-2xl font-semibold mb-4 text-center'>{text.title}</h2>
-              <p className='text-lg text-center w-full max-w-xl'>{text.mainBody}</p>
-              {/* Add horizontal line */}
+            <section key={index} className="mb-8 flex flex-col items-center ">
+              <h2 className="text-2xl font-semibold mb-4 text-center">{text.title}</h2>
+              <p className="text-lg text-center w-full max-w-xl">{text.mainBody}</p>
               {index < aboutTexts.length - 1 && (
-                <hr className='my-8 border-gray-400 w-full max-w-4xl mx-auto' />
+                <hr className="my-8 border-gray-400 w-full max-w-4xl mx-auto" />
               )}
             </section>
           ))}
-
-          <section className='mt-6 text-center'>
+          <section className="mt-6 text-center">
             <button
               onClick={handleContactClick}
-              className={`px-4 bg-indigo-600 rounded-full hover:bg-indigo-400 transition-colors duration-300 flex items-center justify-center py-2 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`px-4 bg-indigo-600 text-white rounded-full hover:bg-indigo-400 transition-colors duration-300 flex items-center justify-center py-2 ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
               disabled={loading}
             >
               {loading ? (

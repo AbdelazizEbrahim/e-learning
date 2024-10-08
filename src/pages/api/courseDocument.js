@@ -17,7 +17,6 @@ export default async function handler(req, res) {
 
   const { courseCode } = req.query;
 
-  // console.log("id: ", documentId);
   console.log("code: ", courseCode);
 
 
@@ -215,7 +214,7 @@ export default async function handler(req, res) {
       console.log('Deleting file from filesystem:', filePath);
 
       try {
-        fs.unlinkSync(filePath); // Delete the file from the server
+        fs.unlinkSync(filePath); 
         console.log('File deleted successfully.');
       } catch (err) {
         console.error('Failed to delete file from filesystem:', err);

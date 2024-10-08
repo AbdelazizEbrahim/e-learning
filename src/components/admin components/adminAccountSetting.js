@@ -86,7 +86,7 @@ const AccountSettings = () => {
       const token = localStorage.getItem('authToken');
       const decoded = jwt.decode(token);
       const email = decoded.email;
-      console.log("email:", email);
+      // console.log("email:", email);
       const response = await fetch(`/api/photo?email=${email}`, {
         method: 'POST',
         body: formData,
@@ -109,32 +109,32 @@ const AccountSettings = () => {
   };
 
   const handleImageUpdate = async (event) => {
-    console.log('Image update initiated');
+    // console.log('Image update initiated');
   
     const file = event.target.files[0];
-    console.log('Selected file:', file);
+    // console.log('Selected file:', file);
   
     if (!file) {
-      console.log('No file selected');
+      // console.log('No file selected');
       return;
     }
   
     const formData = new FormData();
     formData.append('avatar', file);
-    console.log('FormData created with file');
+    // console.log('FormData created with file');
   
     try {
       setLoading(true);
-      console.log('Loading state set to true');
+      // console.log('Loading state set to true');
   
       const token = localStorage.getItem('authToken');
-      console.log('Retrieved token from localStorage:', token);
+      // console.log('Retrieved token from localStorage:', token);
   
       const decoded = jwtDecode(token);
-      console.log('Decoded token:', decoded);
+      // console.log('Decoded token:', decoded);
   
       const email = decoded.email;
-      console.log('Extracted email from token:', email);
+      // console.log('Extracted email from token:', email);
   
       const response = await fetch(`/api/photo?email=${email}`, {
         method: 'PUT',
@@ -143,13 +143,13 @@ const AccountSettings = () => {
           'Authorization': `Bearer ${token}`,
         },
       });
-      console.log('Fetch request sent to API');
+      // console.log('Fetch request sent to API');
   
       if (response.ok) {
         const data = await response.json();
-        console.log('Image update successful, response data:', data);
+        // console.log('Image update successful, response data:', data);
         setProfileImage(data.imageUrl);
-        console.log('Profile image state updated');
+        // console.log('Profile image state updated');
       } else {
         console.error('Image update failed, response status:', response.status);
       }
@@ -157,7 +157,7 @@ const AccountSettings = () => {
       console.error('Error updating image:', error);
     } finally {
       setLoading(false);
-      console.log('Loading state set to false');
+      // console.log('Loading state set to false');
     }
   };
   
@@ -193,7 +193,7 @@ const AccountSettings = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    console.log(`Submitting form: ${activeForm}`);
+    // console.log(`Submitting form: ${activeForm}`);
 
     try {
       const token = localStorage.getItem('authToken');
@@ -215,7 +215,7 @@ const AccountSettings = () => {
             city: formData.city
           })
         });
-        console.log('Profile updated');
+        // console.log('Profile updated');
       } else if (activeForm === 'changePassword') {
         if (formData.newPassword !== formData.confirmPassword) {
           setError('Passwords do not match');
@@ -240,7 +240,7 @@ const AccountSettings = () => {
           throw new Error('Failed to change password');
         }
 
-        console.log('Password changed');
+        // console.log('Password changed');
         alert('Password changed successfully');
         handleClose();
       } else if (activeForm === 'deleteAccount') {
@@ -258,7 +258,7 @@ const AccountSettings = () => {
             throw new Error('Failed to delete account');
           }
 
-          console.log('Account deleted');
+          // console.log('Account deleted');
           alert('Account deleted successfully');
           handleClose();
         }

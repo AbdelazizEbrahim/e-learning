@@ -27,7 +27,7 @@ export default function ManageUser() {
   }, []);
 
   const handleAction = async (actionType, url, method, body) => {
-    console.log(actionType, url, method, body);
+    // console.log(actionType, url, method, body);
     setLoading(true);
     try {
       const response = await fetch(url, {
@@ -37,9 +37,9 @@ export default function ManageUser() {
         },
         body: JSON.stringify(body),
       });
-      console.log("Response: ",response);
+      // console.log("Response: ",response);
       if (!response.ok) {
-      console.log(`Failed to ${actionType}`);
+      // console.log(`Failed to ${actionType}`);
       } else {
       alert(`${actionType.charAt(0).toUpperCase() + actionType.slice(1)} successfully!`);
       setEmail('');

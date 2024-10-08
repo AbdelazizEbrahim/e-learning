@@ -49,7 +49,7 @@ const Wishlist = () => {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`, // Send token for authentication if required
+            'Authorization': `Bearer ${token}`,
           },
         });
 
@@ -57,7 +57,6 @@ const Wishlist = () => {
           throw new Error('Failed to fetch enrolled courses.');
         }
         const enrollmentData = await enrollmentResponse.json();
-        console.log('Enrolled Courses Data:', enrollmentData);
         setEnrolledCourses(enrollmentData);
 
         // Fetch wishlist courses
@@ -65,7 +64,7 @@ const Wishlist = () => {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`, // Send token for authentication if required
+            'Authorization': `Bearer ${token}`,
           },
         });
 
@@ -73,12 +72,7 @@ const Wishlist = () => {
           throw new Error('Failed to fetch wishlist courses.');
         }
         const wishlistData = await wishlistResponse.json();
-        console.log('Wishlist Courses Data:', wishlistData);
-        if (Array.isArray(wishlistData)) {
-          setWishlistCourses(wishlistData);
-        } else {
-          alert('Unexpected data format.');
-        }
+        setWishlistCourses(Array.isArray(wishlistData) ? wishlistData : []);
       } catch (error) {
         alert(error.message || 'An error occurred while fetching data.');
       } finally {
@@ -139,21 +133,17 @@ const Wishlist = () => {
     }
   };
 
-  
   const isCourseEnrolled = (courseCode) => {
-    if (enrolledCourses.length > 0){
-    console.log('Checking if course is enrolled, enrolledCourses:', enrolledCourses);
     return enrolledCourses.some(course => course.courseCode === courseCode);
   };
- }
 
   return (
-    <div className="relative w-screen h-screen flex">
-      <div className="flex-1 p-5">
-        <main className="relative flex flex-col items-center justify-center w-full h-full p-6">
-          <div className="mt-28 bg-[#16202a] text-white p-6 rounded-lg shadow-lg w-full max-w-5xl">
+    <div className="relative w-screen h-screen flex mt-32 lg:mt-0 md:mt-0">
+      <div className="flex-1 p-5 ">
+        <main className="relative flex flex-col items-center justify-center w-full h-full p-6 ">
+          <div className="mt-96 lg:mt-28 md:mt-28  bg-[#16202a] text-white p-6 rounded-lg shadow-lg w-full max-w-5xl ">
             <h1 className="text-3xl font-semibold mb-4">Wishlist</h1>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1">
               {loading ? (
                 <p className="text-white">Loading...</p>
               ) : (
@@ -161,7 +151,7 @@ const Wishlist = () => {
                   <p className="text-white">Your wishlist is empty.</p>
                 ) : (
                   wishlistCourses.map((course) => (
-                    <div key={course.courseCode} className="bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col relative">
+                    <div key={course.courseCode} className="bg-gray-800 p-4 rounded-lg shadow-lg flex flex-col relative ">
                       <div className="relative mb-4">
                         <img
                           src={course.imageUrl}
@@ -195,7 +185,7 @@ const Wishlist = () => {
                         className={`mt-auto bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-400 transition-colors duration-300 ${enrollLoading[course.courseCode] ? 'cursor-wait opacity-50' : ''}`}
                         disabled={enrollLoading[course.courseCode]}
                       >
-                        {enrolledCourses.length === 0 || isCourseEnrolled(course.courseCode)
+                        {isCourseEnrolled(course.courseCode)
                           ? 'Start Learning'
                           : (enrollLoading[course.courseCode] ? 'Enrolling...' : 'Enroll')}
                       </button>

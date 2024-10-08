@@ -48,9 +48,9 @@ const InstructorDetail = () => {
                 // Parse JSON data from responses
                 const userData = await userResponse.json();
                 const studentData = await studentResponse.json();
-                console.log("student: ", studentData)
+                // console.log("student: ", studentData)
                 const adminData = await adminResponse.json();
-                console.log("admin: ", adminData)
+                // console.log("admin: ", adminData)
                 const instructorData = await instructorResponse.json();
 
                 // Update state with counts
@@ -115,7 +115,7 @@ const InstructorDetail = () => {
 
     const handleApprove = async (email) => {
         try {
-            console.log(`Approving instructor with email: ${email}`);
+            // console.log(`Approving instructor with email: ${email}`);
             const response = await fetch(`/api/instructorProfile?email=${email}&isApproved=true`, {
                 method: 'PUT',
                 headers: {
@@ -128,7 +128,7 @@ const InstructorDetail = () => {
                 throw new Error('Failed to approve instructor');
             }
     
-            console.log(`Instructor with email ${email} approved successfully.`);
+            // console.log(`Instructor with email ${email} approved successfully.`);
             setListData((prevListData) =>
                 prevListData.map((item) =>
                     item.email === email ? { ...item, isApproved: true } : item
@@ -141,14 +141,14 @@ const InstructorDetail = () => {
     
     const handleDocumentClick = async (email) => {
         try {
-            console.log(`Fetching documents for email: ${email}`);
+            // console.log(`Fetching documents for email: ${email}`);
             setLoading(true);
     
             // Construct query string to pass the email to the API
             const queryString = new URLSearchParams({ email }).toString();
             const response = await fetch(`/api/instructorFiles?${queryString}`);
 
-            console.log("Received document response:", response);
+            // console.log("Received document response:", response);
 
     
             if (!response.ok) {
@@ -157,11 +157,11 @@ const InstructorDetail = () => {
     
             // Parse the JSON data
             const data = await response.json();
-            console.log("Received document data:", data);
+            // console.log("Received document data:", data);
     
             // Extract fileDetails from the API response
             const { files } = data;
-            console.log("File details:", files);
+            // console.log("File details:", files);
     
             setLoading(false);
     
@@ -177,7 +177,7 @@ const InstructorDetail = () => {
                     }
                 });
     
-                console.log("Document paths:", paths);
+                // console.log("Document paths:", paths);
                 setDocumentPaths(paths); 
     
                 setVisibleDocuments((prev) => ({

@@ -14,7 +14,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="flex flex-col h-screen bg-gray-100"> {/* Soft color background */}
+        <div className="flex flex-col h-screen bg-gray-100 overflow-x-hidden"> {/* Soft color background */}
           <NavBar />
           <main className="flex-1 overflow-y-scroll overflow-hidden mt"> 
             {children}

@@ -105,7 +105,7 @@ export default function AuthPage() {
   return (
     <div className='relative w-screen h-screen overflow-hidden bg-gray-100 flex items-center justify-center'>
       <div className='flex w-full max-w-4xl bg-white shadow-lg rounded-lg'>
-        <div className='w-1/2 p-6'>
+        <div className='lg:w-1/2 md:w-2/3 w-full p-6'>
           <div className='mb-4'>
             <h1 className='text-3xl font-semibold mb-2'>{isSignUp ? 'Sign Up' : 'Sign In'}</h1>
             <p className='text-slate-400'>
