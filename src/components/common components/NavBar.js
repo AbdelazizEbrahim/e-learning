@@ -107,14 +107,14 @@ const NavBar = () => {
   }, []);
 
   const handleCartClickUser = () => {
-    router.push('/user/payment'); // Redirect to the payment page
+    router.push('/user/payment'); 
   };
   const handleCartClickInstructor = () => {
-    router.push('/instructor/payment'); // Redirect to the payment page
+    router.push('/instructor/payment'); 
   };
 
   return (
-    <nav className="bg-gray-800 p-4 h-16 -ml-12 lg:ml-0">
+    <nav className="bg-gray-800 p-2 h-16 lg:h-auto w-auto">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo Button */}
         <Link href="/" className="text-white flex items-center">
@@ -126,21 +126,15 @@ const NavBar = () => {
 
         {/* Right Links */}
         <div className="flex items-center space-x-4 relative">
+          {/* Links for large screens */}
           <div className="hidden lg:flex space-x-4">
             <Link href="/" className="text-white hover:bg-gray-700 px-3 py-2 rounded">Home</Link>
             <Link href="/about" className="text-white hover:bg-gray-700 px-3 py-2 rounded">About</Link>
             <Link href="/contact" className="text-white hover:bg-gray-700 px-3 py-2 rounded">Contact</Link>
             <Link href="/courses" className="text-white hover:bg-gray-700 px-3 py-2 rounded">Courses</Link>
           </div>
-          {/* Mobile navigation menu */}
-          {isMobileNavOpen && (
-            <div className="lg:hidden flex flex-col space-y-2 mt-4 bg-black w-screen z-50 -ml-32">
-              <Link href="/" className="text-white bg-gray-700 px-3 py-2 rounded">Home</Link>
-              <Link href="/about" className="text-white bg-gray-700 px-3 py-2 rounded">About</Link>
-              <Link href="/contact" className="text-white bg-gray-700 px-3 py-2 rounded">Contact</Link>
-              <Link href="/courses" className="text-white bg-gray-700 px-3 py-2 rounded">Courses</Link>
-            </div>
-          )}
+
+          
           {/* Conditional Rendering for Admin */}
           {userRole === 'admin' ? (
             <div
@@ -272,11 +266,36 @@ const NavBar = () => {
           ) : (
             <Link href="/signin" className="text-white hover:bg-gray-700 px-3 py-2 rounded">Sign In/Register</Link>
           )}
-           {/* Hamburger menu for smaller screens */}
-            <div className="lg:hidden">
-              <FaBars size={30} className="text-white" onClick={toggleMobileNav} />
-            </div>
+
+          {/* Hamburger menu for smaller screens */}
+          <div className="lg:hidden">
+            <FaBars size={30} className="text-white cursor-pointer" onClick={toggleMobileNav} />
+          </div>
         </div>
+
+        {/* Mobile Navigation Menu */}
+        {isMobileNavOpen && (
+          <div className="fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-90 z-50 flex flex-col items-center justify-center transition-transform duration-300 ease-in-out lg:hidden">
+            <Link href="/" className="text-white bg-gray-700 px-4 py-2 rounded mb-4" onClick={toggleMobileNav}>
+              Home
+            </Link>
+            <Link href="/about" className="text-white bg-gray-700 px-4 py-2 rounded mb-4" onClick={toggleMobileNav}>
+              About
+            </Link>
+            <Link href="/contact" className="text-white bg-gray-700 px-4 py-2 rounded mb-4" onClick={toggleMobileNav}>
+              Contact
+            </Link>
+            <Link href="/courses" className="text-white bg-gray-700 px-4 py-2 rounded mb-4" onClick={toggleMobileNav}>
+              Courses
+            </Link>
+            <button
+              className="text-white bg-red-600 px-4 py-2 rounded"
+              onClick={toggleMobileNav}
+            >
+              Close
+            </button>
+          </div>
+        )}
       </div>
     </nav>
   );

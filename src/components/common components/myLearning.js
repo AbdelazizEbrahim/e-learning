@@ -88,6 +88,10 @@ const MyLearning = () => {
     }
   }, [courses]);
 
+  const handleCertificate = (courseCode) => {
+    router.push(`/certificate?courseCode=${encodeURIComponent(courseCode)}`);
+  };
+
   const handleStartLearning = async (courseCode) => {
     setEnrollLoading((prev) => ({ ...prev, [courseCode]: true }));
     try {
@@ -137,6 +141,16 @@ const MyLearning = () => {
                   >
                     {enrollLoading[course.courseCode] ? 'Loading...' : 'Start Learning'}
                   </button>
+
+                   {/* Certificate Button - Conditional Rendering */}
+                    {courseProgress[course.courseCode] === 100 && (
+                      <button
+                        onClick={() => handleCertificate(course.courseCode)}
+                        className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-400 transition-colors duration-300 relative ml-2"
+                      >
+                        Certificate
+                      </button>
+                    )}
 
                   {/* Progress Bar */}
                   <div className="mt-4">
