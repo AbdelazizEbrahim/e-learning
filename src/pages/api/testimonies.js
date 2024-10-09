@@ -1,4 +1,4 @@
-import Testimony from '@/model/Testimony';
+import Testimony from "../../model/Testimony";
 import connect from '@/utils/db';
 
 const handleError = (res, error, message) => {

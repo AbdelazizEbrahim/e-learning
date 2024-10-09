@@ -1,4 +1,4 @@
-import Partner from '@/model/Partner';
+import Partner from '../../model/Partner';
 import connect from '@/utils/db';
 
 const handleError = (res, error, message) => {
