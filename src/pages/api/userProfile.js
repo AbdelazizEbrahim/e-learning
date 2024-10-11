@@ -1,7 +1,6 @@
 import UserProfile from '../../model/UserProfile';
 import connect from '../../utils/db';
 
-// eslint-disable-next-line import/no-anonymous-default-export
 export default async (req, res) => {
   await connect();
 
@@ -10,20 +9,16 @@ export default async (req, res) => {
         const { email } = req.query;
 
         if (email) {
-            // Fetch specific user profile if email is provided
             const userProfiles = await UserProfile.find({ email });
 
             if (userProfiles.length === 0) {
                 return res.status(404).json({ message: 'User profile not found' });
             }
 
-            // Return the user profiles directly as a flat array
             return res.status(200).json(userProfiles);
         } else {
-            // Fetch all user profiles if email is not provided
             const userProfiles = await UserProfile.find({});
 
-            // Return the user profiles directly as a flat array
             return res.status(200).json(userProfiles);
         }
     } catch (err) {

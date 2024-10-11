@@ -10,12 +10,12 @@ const AboutPageForm = () => {
     const [aboutTexts, setAboutTexts] = useState([]);
     const formRef = useRef(null);
 
-    // Fetch all text entries on component mount, sorted by priority
     useEffect(() => {
         const fetchTexts = async () => {
             try {
                 const response = await fetch('/api/aboutText');
                 const data = await response.json();
+                console.log("data: ", data
                 setAboutTexts(data.data.sort((a, b) => b.priority - a.priority)); // Sort by priority, descending
             } catch (error) {
                 console.error('Error fetching texts:', error);
@@ -25,7 +25,6 @@ const AboutPageForm = () => {
         fetchTexts();
     }, []);
 
-    // Handle clicking outside of the form to close it
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (formRef.current && !formRef.current.contains(event.target)) {
